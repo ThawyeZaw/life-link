@@ -1,0 +1,15 @@
+{
+    "created": "2025-02-25T02:31:55.117849",
+    "description": "GeoJSON file. Approximate centre point location dataset of public hospitals/hospital grounds in Myanmar as of 2020. Produced by CDE Myanmar based on publicly available reference lists and local knowledge and improving geographic coordinates using mostly large scale satellite/google satellite.",
+    "format": "GeoJSON",
+    "download_url": "https://geonode.themimu.info/geoserver/geonode/ows?service=WFS&version=1.0.0&request=GetFeature&outputFormat=application%2Fjson&typeName=geonode:health_facilities_myanmar2020_v20241016",
+    "id": "47578a11-2a9c-4c85-b016-cfb86450927a",
+    "last_modified": "2024-10-16T12:30:00",
+    "metadata_modified": "2026-03-27T04:19:32.252888",
+    "microdata": false,
+    "dataset_id": "e45a3d87-79f8-4d7f-bd22-7ce908e42c2a",
+    "resource_type": "api",
+    "name": "Public Hospitals in Myanmar geojson",
+    "mimetype": null,
+    "size": "764.8K"
+}
