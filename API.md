@@ -351,8 +351,7 @@ src/
 │   ├── profile/route.ts             # GET/PUT — user profile
 │   └── requests/route.ts            # GET/POST — blood requests
 supabase/migrations/
-├── 00001_initial_schema.sql        # All tables, RLS, indexes, triggers
-├── 00002_seed_hospitals.sql        # Original seed (superseded)
-├── 00005_fix_myanmar_encoding.sql  # 196 hospitals with bilingual names
-└── 00006_notifications_and_*.sql   # Donor matching RPC + notification triggers
+├── 20260716000000_initial_schema.sql       # All tables, RLS, indexes, triggers (v00001)
+├── 20260716000400_fix_myanmar_encoding.sql # 196 hospitals with bilingual names (v00005)
+└── 20260716000500_notifications_and_*.sql  # Donor matching RPC + notification triggers (v00006)
 ```

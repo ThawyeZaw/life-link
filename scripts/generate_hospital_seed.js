@@ -34,6 +34,6 @@ const rows = filtered.map((h) => {
 
 lines.push(rows.join(',\n') + ';');
 
-const outputPath = path.join(__dirname, '..', 'supabase', 'migrations', '00005_fix_myanmar_encoding.sql');
+const outputPath = path.join(__dirname, '..', 'supabase', 'migrations', '20260716000400_fix_myanmar_encoding.sql');
 fs.writeFileSync(outputPath, lines.join('\n'), 'utf-8');
 console.log(`Written ${filtered.length} hospitals to ${outputPath}`);
