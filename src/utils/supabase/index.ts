@@ -113,23 +113,30 @@ export interface MatchDonorsRequest {
     lat: number;
     lng: number;
   };
+  urgency?: Urgency;
+  township?: string;
 }
 
 /** Single donor result from matching */
 export interface MatchDonorResult {
   id: string;
   full_name: string;
-  phone: string;
+  phone: string | null;
   blood_type: BloodType;
-  township: string;
+  township: string | null;
   distance_km: number;
-  lat: number;
-  lng: number;
+  compatibility_score: number;
+  lat: number | null;
+  lng: number | null;
+  last_donation_date: string | null;
+  match_reason: string | null;
 }
 
 /** Response from POST /api/match-donors */
 export interface MatchDonorsResponse {
   donors: MatchDonorResult[];
+  total_scored: number;
+  total_filtered: number;
   message?: string;
 }
 

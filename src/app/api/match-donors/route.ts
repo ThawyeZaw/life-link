@@ -9,6 +9,7 @@ import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 
 const PYTHON_ENGINE_URL = process.env.MATCHING_ENGINE_URL || "http://localhost:8000";
+const MATCHING_ENGINE_API_KEY = process.env.MATCHING_ENGINE_API_KEY;
 
 /**
  * Request body:
@@ -16,7 +17,8 @@ const PYTHON_ENGINE_URL = process.env.MATCHING_ENGINE_URL || "http://localhost:8
  *   requestId: string;
  *   bloodType: BloodType;
  *   location: { lat: number; lng: number };
- *   urgency?: Urgency;  // defaults to STANDARD
+ *   urgency?: Urgency;       // defaults to STANDARD
+ *   township?: string;       // for same-city bonus scoring
  * }
  *
  * Response (200):
@@ -31,6 +33,8 @@ const PYTHON_ENGINE_URL = process.env.MATCHING_ENGINE_URL || "http://localhost:8
  *     compatibility_score: number;
  *     lat: number | null;
  *     lng: number | null;
+ *     last_donation_date: string | null;
+ *     match_reason: string | null;
  *   }>;
  *   total_scored: number;
  *   total_filtered: number;
@@ -49,7 +53,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { requestId, bloodType, location, urgency = "STANDARD" } = body;
+    const { requestId, bloodType, location, urgency = "STANDARD", township } = body;
 
     if (!requestId || !bloodType || !location?.lat || !location?.lng) {
       return NextResponse.json(
@@ -79,14 +83,22 @@ export async function POST(request: Request) {
 
     // ---- Try Python matching engine ----
     try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (MATCHING_ENGINE_API_KEY) {
+        headers["X-API-Key"] = MATCHING_ENGINE_API_KEY;
+      }
+
       const pythonResponse = await fetch(`${PYTHON_ENGINE_URL}/match`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           request_id: requestId,
           blood_type: bloodType,
           location,
           urgency,
+          township: township || null,
           donors: donors || [],
         }),
         signal: AbortSignal.timeout(10_000),
@@ -126,7 +138,11 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ donors: fallbackDonors, total_scored: (fallbackDonors || []).length, total_filtered: 0 });
+    return NextResponse.json({
+      donors: fallbackDonors || [],
+      total_scored: (fallbackDonors || []).length,
+      total_filtered: 0,
+    });
   } catch (err) {
     console.error("[match-donors] Error:", err);
     return NextResponse.json(
