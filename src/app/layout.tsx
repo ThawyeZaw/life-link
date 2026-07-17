@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Vertex Red — Emergency Blood Donor Platform",
+  title: "LifeLink — Emergency Blood Donor Platform",
   description:
     "Real-time emergency platform connecting blood donors, hospitals, and urgent medical needs across Myanmar.",
   keywords: ["blood donation", "Myanmar", "emergency", "hospital", "donor"],

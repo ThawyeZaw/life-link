@@ -1,5 +1,5 @@
 // ============================================================================
-// Vertex Red — POST /api/match-donors
+// LifeLink — POST /api/match-donors
 // Proxies to Python FastAPI matching engine (AGENTS.md Rule 7)
 // Thaw Ye Zaw — Backend / Database Domain
 // ============================================================================

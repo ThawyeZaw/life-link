@@ -1,5 +1,5 @@
 // ============================================================================
-// Vertex Red — Supabase Barrel Export
+// LifeLink — Supabase Barrel Export
 // Thaw Ye Zaw — Backend / Database Domain
 //
 // ⚠️ CROSS-BOUNDARY: Frontend AI agents should import from this file ONLY.

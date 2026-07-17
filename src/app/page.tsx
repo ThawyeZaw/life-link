@@ -6,7 +6,7 @@ import { Droplets, Building2, ArrowRight, Heart } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Vertex Red — Emergency Blood Donor Platform Myanmar",
+  title: "LifeLink — Emergency Blood Donor Platform Myanmar",
   description:
     "Real-time emergency platform connecting blood donors, hospitals, and urgent medical needs across Myanmar.",
 };
@@ -50,7 +50,7 @@ export default function HomePage() {
       {/* Role selector */}
       <div className="flex-1 px-5 py-8 space-y-4">
         <p className="text-sm font-semibold text-gray-500 text-center mb-6">
-          How are you using Vertex Red?
+          How are you using LifeLink?
         </p>
 
         {/* Donor card */}
@@ -117,7 +117,7 @@ export default function HomePage() {
       {/* Footer */}
       <div className="px-6 pb-8 text-center">
         <p className="text-xs text-gray-400">
-          Built with ❤️ for Myanmar · Vertex Red Hackathon 2026
+          Built with ❤️ for Myanmar · LifeLink Hackathon 2026
         </p>
       </div>
     </main>

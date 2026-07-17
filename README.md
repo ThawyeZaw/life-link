@@ -1,4 +1,4 @@
-# 🩸 Vertex Red — LifeLink
+# 🩸 LifeLink
 
 > **Hackathon Pitch:** A real-time emergency platform that connects blood donors, hospitals, and critical medical needs — like Grab, but for saving lives.
 
@@ -38,7 +38,7 @@ A one-tap emergency alert system that notifies compatible nearby donors via push
 ### 1. Clone and install
 
 ```bash
-cd vertex-red
+cd lifelink
 npm install
 ```
 

@@ -8,7 +8,7 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Donation Map — Vertex Red",
+  title: "Donation Map — LifeLink",
   description: "Find nearby blood donation centers and active requests across Myanmar.",
 };
 

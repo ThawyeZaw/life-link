@@ -1,5 +1,5 @@
 -- ============================================================================
--- Vertex Red — Seed Data: Yangon Hospitals
+-- LifeLink — Seed Data: Yangon Hospitals
 -- Thaw Ye Zaw — Backend / Database Domain
 -- ============================================================================
 

@@ -1,5 +1,5 @@
 // ============================================================================
-// Vertex Red — Supabase Query Helpers
+// LifeLink — Supabase Query Helpers
 // Thaw Ye Zaw — Backend / Database Domain
 //
 // ⚠️ CROSS-BOUNDARY: These queries will be consumed by components in

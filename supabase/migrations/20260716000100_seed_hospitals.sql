@@ -1,4 +1,4 @@
-﻿-- Vertex Red -- Seed: Yangon & Mandalay Hospitals (from MIMU dataset)
+-- LifeLink -- Seed: Yangon & Mandalay Hospitals (from MIMU dataset)
 -- Generated: 2026-07-16 | Total: 196 hospitals
 
 INSERT INTO public.hospitals (name, township, address, lat, lng, verification_status) VALUES
