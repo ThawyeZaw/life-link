@@ -1,5 +1,5 @@
 -- ============================================================================
--- Vertex Red — Initial Database Schema
+-- LifeLink — Initial Database Schema
 -- Thaw Ye Zaw — Backend / Database Domain
 -- ============================================================================
 

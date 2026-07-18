@@ -1,5 +1,5 @@
 // ============================================================================
-// Vertex Red — Root Middleware (Supabase Auth Session Refresh)
+// LifeLink — Root Middleware (Supabase Auth Session Refresh)
 // Thaw Ye Zaw — Backend / Database Domain
 // ============================================================================
 

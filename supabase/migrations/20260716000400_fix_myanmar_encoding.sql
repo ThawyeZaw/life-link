@@ -1,4 +1,4 @@
--- Vertex Red -- Yangon & Mandalay Hospitals (UTF-8 Bilingual)
+-- LifeLink -- Yangon & Mandalay Hospitals (UTF-8 Bilingual)
 -- Total: 196 hospitals
 
 DELETE FROM public.hospitals;

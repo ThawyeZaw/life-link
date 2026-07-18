@@ -15,7 +15,7 @@ const filtered = data.features.filter(
 const escapeSql = (s) => (s || '').replace(/'/g, "''");
 
 const lines = [];
-lines.push('-- Vertex Red -- Yangon & Mandalay Hospitals (UTF-8 Bilingual)');
+lines.push('-- LifeLink -- Yangon & Mandalay Hospitals (UTF-8 Bilingual)');
 lines.push(`-- Total: ${filtered.length} hospitals\n`);
 lines.push('DELETE FROM public.hospitals;\n');
 lines.push('INSERT INTO public.hospitals (name, name_mya, township, address, lat, lng, verification_status) VALUES');

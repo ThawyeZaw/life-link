@@ -1,9 +1,8 @@
-# 🩸 Vertex Red
+# 🩸 LifeLink
 
 > **Hackathon Pitch:** A real-time emergency platform that connects blood donors, hospitals, and critical medical needs — like Grab, but for saving lives.
 
 ---
-
 ## 🚀 Core Features
 
 ### 🗂️ Real-time Request Board
@@ -13,7 +12,7 @@ A live-updating dashboard where hospitals and patients can post urgent blood and
 A Mapbox-powered map displaying active donor locations, hospital pins, and urgent request zones across Myanmar. Donors can see nearby requests at a glance, and hospitals can broadcast their needs geographically.
 
 ### 🚨 Ping a Hero Alert
-A one-tap emergency alert system that notifies compatible nearby donors via push notification or SMS when a critical request is posted. Powered by the Python matching engine, which ranks donors by blood type compatibility, proximity, and last donation date.
+A one-tap emergency alert system that notifies compatible nearby donors via push notification or SMS when a critical request is posted. Powered by the Python matching engine, which ranks donors by blood type compatibility, proximity, last donation date, and township locality.
 
 ---
 
@@ -21,10 +20,10 @@ A one-tap emergency alert system that notifies compatible nearby donors via push
 
 | Layer | Technology |
 |---|---|
-| **Frontend** | Next.js, Tailwind CSS, Lucide React |
+| **Frontend** | Next.js 16, Tailwind CSS v4, Lucide React |
 | **Database / Realtime** | Supabase (PostgreSQL + Realtime subscriptions) |
 | **Mapping** | Mapbox GL JS |
-| **Matching Engine** | Python (FastAPI microservice) |
+| **Matching Engine** | Python FastAPI microservice (separate repo) |
 | **Auth** | Supabase Auth |
 
 ---
@@ -33,41 +32,63 @@ A one-tap emergency alert system that notifies compatible nearby donors via push
 
 ### Prerequisites
 - Node.js 20+
-- npm or yarn
+- npm
 - A [Supabase](https://supabase.com) project
 
-### 1. Clone the repository
+### 1. Clone and install
 
 ```bash
-git clone https://github.com/your-org/vertex-red.git
-cd vertex-red
-```
-
-### 2. Install dependencies
-
-```bash
+cd lifelink
 npm install
 ```
 
-### 3. Configure environment variables
+### 2. Configure environment variables
 
-Create a `.env.local` file in the root of the project:
-
-```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```bash
+cp .env.example .env.local
 ```
 
-> ⚠️ Never commit `.env.local` to version control. It is already listed in `.gitignore`.
+Fill in your Supabase project URL and anon key:
 
-### 4. Run the development server
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key-here
+```
+
+> The matching engine (`MATCHING_ENGINE_URL`) is optional for local dev — the `/api/match-donors` route falls back to a built-in SQL proximity function when the Python engine is unreachable.
+
+### 3. Run the development server
 
 ```bash
 npm run dev
 ```
 
 The app will be available at [http://localhost:3000](http://localhost:3000).
+
+---
+
+## 🔗 Matching Engine Integration
+
+The Python FastAPI matching engine is a **separate microservice** deployed on Render. The Next.js backend proxies all matching requests through `/api/match-donors` — **frontend components never call the Python engine directly**.
+
+```
+Frontend Component (Thinzar)
+      ↓  fetch('/api/match-donors', { method: 'POST', body: ... })
+/api/match-donors          ← Next.js API Route (Thaw Ye Zaw)
+      ↓  HTTP POST (X-API-Key auth)
+Python FastAPI (Render)    ← Scoring & ranking engine
+```
+
+### Connection settings
+
+| Env Var | Where | Required? |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Vercel + local | Yes |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Vercel + local | Yes |
+| `MATCHING_ENGINE_URL` | Vercel only | No (falls back to SQL) |
+| `MATCHING_ENGINE_API_KEY` | Vercel only | No (only if engine is deployed) |
+
+When **both** env vars are set, the Next.js API route calls the Python engine. Otherwise it uses the `find_nearby_donors` Postgres RPC (exact blood-type match + distance sort).
 
 ---
 
@@ -84,19 +105,29 @@ The app will be available at [http://localhost:3000](http://localhost:3000).
 ## 📁 Project Structure
 
 ```
-vertex-red/
-├── app/                  # Next.js App Router pages & layouts (Thinzar)
-├── components/           # Reusable React UI components (Thinzar)
-├── styles/               # Global styles (Tailwind base only) (Thinzar)
-├── lib/
-│   └── supabase/         # Supabase client, queries, schema helpers (Thaw Ye Zaw)
-├── api/                  # Next.js API routes & matching engine proxy (Thaw Ye Zaw)
-├── utils/                # Shared utilities and backend helpers (Thaw Ye Zaw)
-└── public/               # Static assets & Figma exports (Zyy Lin Htet)
+LifeLink/
+├── src/
+│   ├── app/                    # Next.js App Router pages & layouts (Thinzar)
+│   │   ├── api/               # API routes & matching engine proxy (Thaw Ye Zaw)
+│   │   │   ├── hospitals/     # GET — approved hospital list
+│   │   │   ├── match-donors/  # POST — donor matching (Python engine proxy)
+│   │   │   ├── profile/       # GET/PUT — user profile
+│   │   │   └── requests/      # GET/POST — blood requests
+│   │   ├── broadcast/         # Emergency broadcast page
+│   │   ├── command/           # Command center dashboard
+│   │   ├── inventory/         # Blood inventory page
+│   │   ├── map/               # Medical map page
+│   │   └── passport/          # Donor passport page
+│   ├── components/            # Reusable React UI components (Thinzar)
+│   └── utils/supabase/        # DB types, queries, real-time subs (Thaw Ye Zaw)
+├── supabase/migrations/       # Database migrations (Thaw Ye Zaw)
+├── public/                    # Static assets & screenshots (Zyy Lin Htet)
+├── .env.example               # Environment variable template
+├── API.md                     # Full API reference for AI agents
+└── AGENTS.md                  # Mandatory AI code-generation rules
 ```
 
 ---
-
 ## 📄 License
 
 MIT — Built with ❤️ for the hackathon.
