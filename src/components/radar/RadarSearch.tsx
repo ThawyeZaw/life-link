@@ -30,6 +30,11 @@ export const RadarSearch = ({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const [emailResult, setEmailResult] = useState<{
+    total: number;
+    sent: number;
+    failed: number;
+  } | null>(null);
 
   const scan = useCallback(
     async (radiusKm: number) => {
@@ -99,10 +104,12 @@ export const RadarSearch = ({
       return next;
     });
   };
-
   const sendInvites = async () => {
+    if (selected.size === 0 || sending) return;
+
     setSending(true);
     setError("");
+    setEmailResult(null);
 
     try {
       const response = await fetch("/api/invite", {
@@ -122,6 +129,16 @@ export const RadarSearch = ({
         throw new Error(json.error ?? "Could not send alerts");
       }
 
+      const total = Number(json.invited ?? selected.size);
+      const sent = Number(json.emailed ?? total);
+      const failed = Number(json.failures?.length ?? Math.max(0, total - sent));
+
+      setEmailResult({
+        total,
+        sent,
+        failed,
+      });
+
       onInvited();
     } catch (caughtError) {
       setError(
@@ -129,6 +146,7 @@ export const RadarSearch = ({
           ? caughtError.message
           : "Could not send alerts",
       );
+    } finally {
       setSending(false);
     }
   };
@@ -286,42 +304,36 @@ export const RadarSearch = ({
       ) : (
         <div className="space-y-4">
           <DonorList donors={donors} selected={selected} onToggle={toggle} />
-
           {error && (
-            <div
-              role="alert"
-              className="flex items-start gap-2.5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-5 text-red-700"
-            >
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>{error}</span>
+            <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+              {error}
+            </p>
+          )}
+          {emailResult && (
+            <div className="rounded-xl px-4 py-3 text-sm text-amber-800 bg-amber-50">
+              {emailResult.sent > 0
+                ? `${emailResult.sent} of ${emailResult.total} donor(s) notified. `
+                : `No emails were sent. `}
+              {emailResult.failed > 0 && (
+                <span>
+                  {emailResult.failed} email(s) failed. Check the server logs or
+                  verify your Resend domain setup.
+                </span>
+              )}
             </div>
           )}
-
-          <div className="sticky bottom-3 z-10 rounded-[24px] border border-white/90 bg-white/95 p-3 shadow-[0_18px_52px_rgba(15,23,42,0.14)] backdrop-blur-xl">
-            <button
-              type="button"
-              onClick={sendInvites}
-              disabled={sending || selected.size === 0}
-              className="group flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 text-base font-black text-white shadow-[0_14px_32px_rgba(220,38,38,0.26)] transition hover:bg-red-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {sending ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <Mail className="h-5 w-5 transition group-hover:scale-110" />
-              )}
-
-              {sending
-                ? "Sending donor alerts..."
-                : `Email ${selected.size} donor${
-                    selected.size === 1 ? "" : "s"
-                  }`}
-            </button>
-
-            <p className="mt-2 text-center text-[11px] font-medium text-slate-400">
-              Only selected and eligible donors will receive this emergency
-              alert.
-            </p>
-          </div>
+          <button
+            onClick={sendInvites}
+            disabled={sending || selected.size === 0}
+            className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-red-600 text-base font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:opacity-50"
+          >
+            {sending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Mail className="h-4 w-4" />
+            )}
+            Email {selected.size} donor{selected.size === 1 ? "" : "s"}
+          </button>
         </div>
       )}
 
