@@ -9,7 +9,7 @@
 A live-updating dashboard where hospitals and patients can post urgent blood and medical supply requests. Requests are color-coded by urgency level and blood type, updating instantly via Supabase real-time subscriptions — no refresh needed.
 
 ### 🗺️ Interactive Medical Map
-A Mapbox-powered map displaying active donor locations, hospital pins, and urgent request zones across Myanmar. Donors can see nearby requests at a glance, and hospitals can broadcast their needs geographically.
+A Mapbox-powered map (via `react-map-gl`) displaying hospital locations, active blood request pins colored by urgency, and available donor markers across Myanmar. Includes layer toggles, "Get Directions" integration, and real-time data from Supabase. Donors see nearby hospitals and requests; requesters see compatible donors.
 
 ### 🚨 Ping a Hero Alert
 A one-tap emergency alert system that notifies compatible nearby donors via push notification or SMS when a critical request is posted. Powered by the Python matching engine, which ranks donors by blood type compatibility, proximity, last donation date, and township locality.
@@ -22,7 +22,7 @@ A one-tap emergency alert system that notifies compatible nearby donors via push
 |---|---|
 | **Frontend** | Next.js 16, Tailwind CSS v4, Lucide React |
 | **Database / Realtime** | Supabase (PostgreSQL + Realtime subscriptions) |
-| **Mapping** | Mapbox GL JS |
+| **Mapping** | react-map-gl + mapbox-gl |
 | **Matching Engine** | Python FastAPI microservice (separate repo) |
 | **Auth** | Supabase Auth |
 
@@ -53,7 +53,10 @@ Fill in your Supabase project URL and anon key:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key-here
+NEXT_PUBLIC_MAPBOX_TOKEN=pk.your_mapbox_token_here
 ```
+
+> The Mapbox token is required for the interactive map — get a free token at [mapbox.com](https://www.mapbox.com/) (50,000 map loads/month, no credit card).
 
 > The matching engine (`MATCHING_ENGINE_URL`) is optional for local dev — the `/api/match-donors` route falls back to a built-in SQL proximity function when the Python engine is unreachable.
 
@@ -110,6 +113,7 @@ LifeLink/
 │   ├── app/                    # Next.js App Router pages & layouts (Thinzar)
 │   │   ├── api/               # API routes & matching engine proxy (Thaw Ye Zaw)
 │   │   │   ├── hospitals/     # GET — approved hospital list
+│   │   │   ├── map-data/      # GET — hospitals, requests & donors for the map
 │   │   │   ├── match-donors/  # POST — donor matching (Python engine proxy)
 │   │   │   ├── profile/       # GET/PUT — user profile
 │   │   │   └── requests/      # GET/POST — blood requests
@@ -119,6 +123,7 @@ LifeLink/
 │   │   ├── map/               # Medical map page
 │   │   └── passport/          # Donor passport page
 │   ├── components/            # Reusable React UI components (Thinzar)
+│   │   └── map/               # Mapbox map, markers, legend, info windows
 │   └── utils/supabase/        # DB types, queries, real-time subs (Thaw Ye Zaw)
 ├── supabase/migrations/       # Database migrations (Thaw Ye Zaw)
 ├── public/                    # Static assets & screenshots (Zyy Lin Htet)

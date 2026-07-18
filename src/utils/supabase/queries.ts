@@ -122,11 +122,12 @@ export const submitHospital = async (
 /** Get all active (non-expired, non-fulfilled) requests with details */
 export const getActiveRequests = async () => {
   const supabase = createClient();
-  const { data, error } = await supabase
+
+  // Fetch requests with hospital join (hospital_id → public.hospitals works fine)
+  const { data: requests, error } = await supabase
     .from('requests')
     .select(`
       *,
-      requester:requester_id(id, full_name, phone, blood_type),
       hospital:hospital_id(id, name, township, phone)
     `)
     .in('status', ['OPEN', 'IN_PROGRESS'])
@@ -134,17 +135,36 @@ export const getActiveRequests = async () => {
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return data as unknown as RequestWithDetails[];
+  if (!requests || requests.length === 0) return [] as RequestWithDetails[];
+
+  // Fetch requester profiles separately (requester_id → auth.users, not directly resolvable)
+  const requesterIds = [...new Set(requests.map((r) => r.requester_id))];
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, full_name, phone, blood_type')
+    .in('id', requesterIds);
+
+  const profileMap = new Map((profiles || []).map((p) => [p.id, p]));
+
+  return requests.map((r) => ({
+    ...r,
+    requester: profileMap.get(r.requester_id) ?? {
+      id: r.requester_id,
+      full_name: 'Unknown',
+      phone: null,
+      blood_type: null,
+    },
+  })) as unknown as RequestWithDetails[];
 };
 
 /** Get requests filtered by urgency */
 export const getRequestsByUrgency = async (urgency: Urgency) => {
   const supabase = createClient();
-  const { data, error } = await supabase
+
+  const { data: requests, error } = await supabase
     .from('requests')
     .select(`
       *,
-      requester:requester_id(id, full_name, phone, blood_type),
       hospital:hospital_id(id, name, township, phone)
     `)
     .eq('urgency', urgency)
@@ -153,7 +173,25 @@ export const getRequestsByUrgency = async (urgency: Urgency) => {
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return data as unknown as RequestWithDetails[];
+  if (!requests || requests.length === 0) return [] as RequestWithDetails[];
+
+  const requesterIds = [...new Set(requests.map((r) => r.requester_id))];
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, full_name, phone, blood_type')
+    .in('id', requesterIds);
+
+  const profileMap = new Map((profiles || []).map((p) => [p.id, p]));
+
+  return requests.map((r) => ({
+    ...r,
+    requester: profileMap.get(r.requester_id) ?? {
+      id: r.requester_id,
+      full_name: 'Unknown',
+      phone: null,
+      blood_type: null,
+    },
+  })) as unknown as RequestWithDetails[];
 };
 
 /** Create a new blood or medical supply request */
@@ -330,6 +368,29 @@ export const subscribeToRequests = (
       'postgres_changes',
       { event: 'UPDATE', schema: 'public', table: 'requests' },
       (payload) => onUpdate(payload.new as Request)
+    )
+    .subscribe();
+};
+
+// ⚠️ CROSS-BOUNDARY: Added for interactive map real-time donor updates
+// Thinzar Kyaw — Frontend Domain consumer.
+/** Subscribe to real-time profile updates for donor availability & location */
+export const subscribeToProfiles = (
+  onInsert: (profile: Profile) => void,
+  onUpdate: (profile: Profile) => void,
+) => {
+  const supabase = createClient();
+  return supabase
+    .channel('profiles-channel')
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'profiles' },
+      (payload) => onInsert(payload.new as Profile),
+    )
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'profiles' },
+      (payload) => onUpdate(payload.new as Profile),
     )
     .subscribe();
 };

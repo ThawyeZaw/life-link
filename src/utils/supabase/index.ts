@@ -86,6 +86,7 @@ export {
   markNotificationRead,
   // Real-time Subscriptions
   subscribeToRequests,
+  subscribeToProfiles,
   subscribeToMessages,
   subscribeToNotifications,
 } from './queries';
