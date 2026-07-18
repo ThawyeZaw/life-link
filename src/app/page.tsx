@@ -147,7 +147,7 @@ export default function HomePage() {
                 </Link>
 
                 <Link
-                  href="/passport"
+                  href="/profile"
                   className="group inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-6 text-sm font-bold text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/15"
                 >
                   <Heart className="h-4 w-4 text-emerald-400" />
@@ -322,7 +322,7 @@ export default function HomePage() {
 
         <div className="mt-10 grid gap-5 lg:grid-cols-2">
           <Link
-            href="/passport"
+            href="/profile"
             id="role-donor"
             className="group relative overflow-hidden rounded-[2rem] border border-emerald-100 bg-white p-6 shadow-[0_16px_50px_rgba(16,24,40,0.07)] transition duration-300 hover:-translate-y-1 hover:border-emerald-300 hover:shadow-[0_22px_65px_rgba(16,185,129,0.13)] sm:p-8"
           >
@@ -353,18 +353,16 @@ export default function HomePage() {
               </p>
 
               <div className="mt-7 flex flex-wrap gap-2">
-                {[
-                  "Donor passport",
-                  "Nearby requests",
-                  "Eligibility status",
-                ].map((item) => (
-                  <span
-                    key={item}
-                    className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700"
-                  >
-                    {item}
-                  </span>
-                ))}
+                {["Donor Profile", "Nearby requests", "Eligibility status"].map(
+                  (item) => (
+                    <span
+                      key={item}
+                      className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700"
+                    >
+                      {item}
+                    </span>
+                  ),
+                )}
               </div>
             </div>
           </Link>
