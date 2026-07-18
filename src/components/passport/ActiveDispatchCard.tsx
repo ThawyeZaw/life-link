@@ -70,7 +70,7 @@ export function ActiveDispatchCard({
 }: ActiveDispatchCardProps) {
   const hospitalName = request.hospital?.name ?? "Nearby partner hospital";
   const bloodType = request.blood_type ?? "—";
-  const unitsRequired = request.units_required ?? 1;
+  const unitsRequired = request.units_needed ?? 1;
   const requestCode =
     "id" in request && typeof request.id === "string"
       ? request.id.slice(0, 8).toUpperCase()
