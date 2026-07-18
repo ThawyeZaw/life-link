@@ -22,7 +22,7 @@
 |---|---|---|
 | **Thaw Ye Zaw** | Backend / Database | `/lib/supabase/`, `/api/`, `/utils/` |
 | **Thinzar Kyaw** | Frontend / UI | `/app/`, `/components/`, `/styles/` |
-| **Zyy Lin Htet** | UI/UX Design | `/public/` (assets only) |
+| **Zay Lynn Htet** | UI/UX Design | `/public/` (assets only) |
 
 ---
 

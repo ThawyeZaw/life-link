@@ -11,16 +11,29 @@
 import { MapView } from "@/components/map/MapView";
 import { ApiKeyMissing } from "@/components/map/ApiKeyMissing";
 import { DonorTopBar } from "@/components/layout/DonorTopBar";
-import { BottomNav } from "@/components/layout/BottomNav";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Donation Map — LifeLink",
-  description: "Find nearby blood donation centers, active requests, and donors across Myanmar.",
+  description: "Find nearby blood donation centers and active requests across Myanmar.",
 };
 
 export default function MapPage() {
-  const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+  return (
+    <div className="flex min-h-screen flex-col bg-gray-50">
+      <DonorTopBar title="Donation Map" subtitle="Find nearby ways to give" />
+
+      <div className="flex flex-1 flex-col items-center justify-center px-6 py-12">
+        <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-emerald-100">
+          <MapPin className="h-12 w-12 text-vr-teal" />
+        </div>
+        <h2 className="mt-6 text-xl font-bold text-vr-navy text-center">
+          Interactive Map
+        </h2>
+        <p className="mt-2 text-sm text-gray-500 text-center max-w-xs leading-relaxed">
+          The Mapbox-powered donation map is coming soon. It will show donor locations,
+          hospital pins, and urgent request zones across Myanmar.
+        </p>
 
   if (!mapboxToken) {
     return (
@@ -30,11 +43,6 @@ export default function MapPage() {
     );
   }
 
-  return (
-    <div className="flex h-dvh flex-col bg-gray-50">
-      <DonorTopBar title="Donation Map" subtitle="Hospitals, requests & donors" />
-      <MapView mapboxToken={mapboxToken} />
-      <BottomNav />
     </div>
   );
 }

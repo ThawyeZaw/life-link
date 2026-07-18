@@ -2,6 +2,7 @@
 
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { Navbar } from "@/components/Navbar";
 import "./globals.css";
 
 const inter = Inter({
@@ -75,6 +76,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         {children}
+        <Navbar />
       </body>
     </html>
   );
