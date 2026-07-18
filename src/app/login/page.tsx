@@ -1,32 +1,27 @@
-// /login — dedicated login page. Unauthenticated users hitting any protected
-// route are redirected here by the middleware (with ?next= for post-login
-// return). Already-authenticated users are bounced to /dashboard.
-// Thinzar Kyaw — Frontend Domain
-
 import { Suspense } from "react";
-import type { Metadata } from "next";
-import { Loader2 } from "lucide-react";
-import { LoginPanel } from "@/components/LoginPanel";
+import Link from "next/link";
+import Image from "next/image";
+import { LoginForm } from "@/components/auth/LoginForm";
 
-export const metadata: Metadata = {
-  title: "Sign In",
-  description: "Sign in to LifeLink to access the emergency blood network.",
-};
+const LoginPage = () => (
+  <div className="mx-auto flex max-w-md flex-col gap-6 px-4 py-8 md:py-12">
+    <div className="flex flex-col items-center gap-2 text-center">
+      <Image src="/logo.png" alt="LifeLink" width={56} height={56} className="rounded-2xl" />
+      <h1 className="text-2xl font-bold text-slate-900">Welcome back</h1>
+      <p className="text-base text-slate-500">Log in to continue saving lives.</p>
+    </div>
 
-export default function LoginPage() {
-  return (
-    <main className="flex min-h-screen items-start justify-center bg-gray-50 px-4 py-10 sm:items-center">
-      <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl sm:p-8">
-        <Suspense
-          fallback={
-            <div className="flex justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-red-600" />
-            </div>
-          }
-        >
-          <LoginPanel />
-        </Suspense>
-      </div>
-    </main>
-  );
-}
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+
+    <p className="text-center text-sm text-slate-500">
+      New to LifeLink?{" "}
+      <Link href="/signup" className="font-semibold text-red-600 hover:underline">
+        Create an account
+      </Link>
+    </p>
+  </div>
+);
+
+export default LoginPage;

@@ -1,38 +1,70 @@
-// Dashboard — authenticated operational hub
-// Request Board + Location Feed + Ping a Hero dispatch
-// Thinzar Kyaw — Frontend Domain
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
+import { AvailabilityCard } from "@/components/dashboard/AvailabilityCard";
+import { InvitationsList } from "@/components/dashboard/InvitationsList";
+import { MyRequests } from "@/components/dashboard/MyRequests";
+import { OrgSection } from "@/components/dashboard/OrgSection";
+import { OrgCard } from "@/components/dashboard/OrgCard";
+import type { Organization, Profile } from "@/lib/types";
 
-import type { Metadata } from "next";
-import { RequestBoard } from "@/components/dashboard/RequestBoard";
-import { MapPreview } from "@/components/dashboard/MapPreview";
-import { PingHero } from "@/components/dashboard/PingHero";
+const DashboardPage = async () => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-export const metadata: Metadata = {
-  title: "Operations Dashboard — LifeLink",
-  description: "Live emergency blood requests, location feed, and donor dispatch.",
-};
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user!.id)
+    .single<Profile>();
 
-export default function DashboardPage() {
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("*")
+    .limit(1)
+    .maybeSingle<Organization>();
+
+  if (!profile) return null;
+  const isOrg = profile.account_type === "organization";
+  const firstName = profile.full_name.split(" ")[0];
+
   return (
-    <div className="space-y-5">
-      {/* Page header */}
-      <div>
-        <h1 className="text-xl font-black text-vr-navy md:text-2xl">Operations Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Live emergency blood coordination for Yangon Region
-        </p>
+    <div className="mx-auto flex max-w-md flex-col gap-6 px-4 py-6 md:max-w-2xl">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">
+            {isOrg ? org?.name ?? profile.full_name : `Hi, ${firstName}`}
+          </h1>
+          <p className="text-base text-slate-500">
+            {isOrg ? "Coordinate donors and requests." : "Thanks for being a lifesaver."}
+          </p>
+        </div>
       </div>
 
-      {/* Widgets — single column on mobile, board + side rail on lg */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <RequestBoard />
-        </div>
-        <div className="space-y-5">
-          <PingHero />
-          <MapPreview />
-        </div>
-      </div>
+      <Link
+        href="/requests/new"
+        className="flex min-h-14 items-center justify-center gap-2 rounded-full bg-red-600 text-base font-semibold text-white shadow-md transition-colors hover:bg-red-700"
+      >
+        <Plus className="h-5 w-5" /> Request blood
+      </Link>
+
+      {isOrg && org ? (
+        <>
+          <OrgCard org={org} />
+          <MyRequests orgId={org.id} title="Organization requests" />
+        </>
+      ) : (
+        <>
+          <AvailabilityCard profile={profile} />
+          <InvitationsList />
+          <MyRequests />
+          <OrgSection />
+        </>
+      )}
     </div>
   );
-}
+};
+
+export default DashboardPage;

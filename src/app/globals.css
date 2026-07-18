@@ -1,220 +1,71 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f0f4f8;
+  --background: #fafafa;
   --foreground: #0f172a;
-  --vr-teal: #0ea87a;
-  --vr-teal-dark: #0b8f68;
-  --vr-red: #dc2626;
-  --vr-amber: #d97706;
-  --vr-navy: #111827;
-
-  /* Water-inspired glass palette */
-  --glass-surface: rgba(255, 255, 255, 0.72);
-  --glass-border: rgba(255, 255, 255, 0.48);
-  --glass-highlight: rgba(255, 255, 255, 0.9);
-  --glass-shadow: rgba(15, 23, 42, 0.06);
-  --water-blue-soft: rgba(219, 234, 254, 0.45);
-  --water-cyan-subtle: rgba(207, 250, 254, 0.35);
-  --water-gradient-start: #eef6ff;
-  --water-gradient-mid: #f0f9ff;
-  --water-gradient-end: #f8fafc;
-
-  /* Liquid glass depth layers */
-  --glass-depth-surface: rgba(255, 255, 255, 0.65);
-  --glass-depth-elevated: rgba(255, 255, 255, 0.78);
-  --glass-depth-overlay: rgba(255, 255, 255, 0.88);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-vr-teal: var(--vr-teal);
-  --color-vr-teal-dark: var(--vr-teal-dark);
-  --color-vr-red: var(--vr-red);
-  --color-vr-amber: var(--vr-amber);
-  --color-vr-navy: var(--vr-navy);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Smooth scroll */
 html {
   scroll-behavior: smooth;
 }
 
-/* Mobile safe area support */
-.pb-safe {
-  padding-bottom: env(safe-area-inset-bottom, 16px);
+/* ===== Radar animation ===== */
+@keyframes radar-sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-/* =========================================================================
-   Water-Inspired Gradient Backgrounds
-   ========================================================================= */
-
-.bg-water-gradient {
-  background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, var(--water-gradient-start), transparent 70%),
-    radial-gradient(ellipse 60% 50% at 100% 40%, var(--water-gradient-mid), transparent 60%),
-    radial-gradient(ellipse 50% 70% at 0% 80%, rgba(224, 242, 254, 0.5), transparent 60%),
-    linear-gradient(180deg, var(--water-gradient-start) 0%, var(--water-gradient-mid) 40%, var(--water-gradient-end) 100%);
+@keyframes radar-ring {
+  0% { transform: scale(0.3); opacity: 0.8; }
+  100% { transform: scale(1.05); opacity: 0; }
 }
 
-.bg-water-subtle {
-  background:
-    radial-gradient(ellipse 70% 50% at 50% 30%, rgba(219, 234, 254, 0.3), transparent 60%),
-    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 50%, #eef2ff 100%);
+@keyframes blip-in {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.4); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-/* =========================================================================
-   Apple Liquid Glass Effect — Canonical Classes
-   ========================================================================= */
-
-/* Surface glass — base translucent layer (z-0 depth) */
-.glass-surface {
-  background: var(--glass-surface);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  box-shadow:
-    0 1px 3px var(--glass-shadow),
-    0 0 0 0.5px rgba(255, 255, 255, 0.5) inset;
+.animate-radar-sweep {
+  animation: radar-sweep 2.4s linear infinite;
+  transform-origin: center;
 }
 
-/* Elevated glass — raised translucent layer (z-10 depth) */
-.glass-elevated {
-  background: var(--glass-depth-elevated);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  box-shadow:
-    0 4px 16px rgba(15, 23, 42, 0.06),
-    0 0 0 1px rgba(255, 255, 255, 0.4) inset,
-    0 1px 0 rgba(255, 255, 255, 0.6);
+.animate-radar-ring {
+  animation: radar-ring 2.4s ease-out infinite;
 }
 
-/* Overlay glass — highest translucent layer (z-20 depth, for stat cards) */
-.glass-overlay {
-  background: var(--glass-depth-overlay);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow:
-    0 8px 32px rgba(15, 23, 42, 0.07),
-    0 0 0 1px rgba(255, 255, 255, 0.5) inset,
-    0 2px 0 rgba(255, 255, 255, 0.7);
+.animate-blip-in {
+  animation: blip-in 0.5s ease-out both;
 }
 
-/* Navbar glass — scroll-aware variant */
-.glass-nav-top {
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border-bottom: 1px solid transparent;
+/* Pulsing marker for critical requests on the map */
+@keyframes pulse-marker {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5); }
+  50% { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); }
 }
 
-.glass-nav-scrolled {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid rgba(203, 213, 225, 0.4);
-  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.05);
+.animate-pulse-marker {
+  animation: pulse-marker 1.8s ease-out infinite;
 }
 
-/* Glass inner pill — secondary translucency step inside a glass card */
-.glass-pill {
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(8px) saturate(180%);
-  -webkit-backdrop-filter: blur(8px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-/* =========================================================================
-   Floating Animation — Interactive Buttons & Cards
-   ========================================================================= */
-
-@keyframes float-subtle {
-  0%, 100% {
-    transform: translateY(0);
-    box-shadow:
-      0 4px 16px rgba(15, 23, 42, 0.06),
-      0 0 0 1px rgba(255, 255, 255, 0.4) inset;
-  }
-  50% {
-    transform: translateY(-3px);
-    box-shadow:
-      0 8px 24px rgba(15, 23, 42, 0.08),
-      0 0 0 1px rgba(255, 255, 255, 0.5) inset;
-  }
-}
-
-@keyframes float-cta {
-  0%, 100% {
-    transform: translateY(0) scale(1);
-    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
-  }
-  50% {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 12px 28px rgba(220, 38, 38, 0.35);
-  }
-}
-
-@keyframes float-card-hover {
-  0% {
-    transform: translateY(0);
-    box-shadow: 0 1px 3px var(--glass-shadow);
-  }
-  100% {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
-  }
-}
-
-/* Float animation utility */
-.animate-float-subtle {
-  animation: float-subtle 4s ease-in-out infinite;
-}
-
-.animate-float-cta {
-  animation: float-cta 3.5s ease-in-out infinite;
-}
-
-/* Hover-triggered float for cards */
-.hover\:float-card:hover {
-  animation: float-card-hover 0.4s ease-out forwards;
-}
-
-/* Respect prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
-  .animate-float-subtle,
-  .animate-float-cta,
-  .hover\:float-card {
+  .animate-radar-sweep,
+  .animate-radar-ring,
+  .animate-blip-in,
+  .animate-pulse-marker {
     animation: none !important;
   }
-}
-
-/* =========================================================================
-   Water Ripple Decorative Elements
-   ========================================================================= */
-
-.water-ripple {
-  position: relative;
-  overflow: hidden;
-}
-
-.water-ripple::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
-    radial-gradient(circle at 70% 60%, rgba(6, 182, 212, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 50% 80%, rgba(59, 130, 246, 0.04) 0%, transparent 40%);
-  pointer-events: none;
 }

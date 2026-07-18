@@ -1,34 +1,17 @@
-// BloodTypeBadge — reusable blood type pill
-// Thinzar Kyaw — Frontend Domain
-
-import { clsx } from "clsx";
-
-interface BloodTypeBadgeProps {
-  bloodType: string;
-  size?: "sm" | "md" | "lg";
-  className?: string;
-}
+import type { BloodType } from "@/lib/types";
 
 export const BloodTypeBadge = ({
-  bloodType,
+  type,
   size = "md",
-  className,
-}: BloodTypeBadgeProps) => {
-  const sizeClasses = {
-    sm: "w-8 h-8 text-xs",
-    md: "w-10 h-10 text-sm",
-    lg: "w-14 h-14 text-base",
-  };
-
-  return (
-    <div
-      className={clsx(
-        "flex items-center justify-center rounded-xl bg-vr-navy font-bold text-white",
-        sizeClasses[size],
-        className
-      )}
-    >
-      {bloodType}
-    </div>
-  );
-};
+}: {
+  type: BloodType | string;
+  size?: "md" | "lg";
+}) => (
+  <span
+    className={`inline-flex items-center justify-center rounded-full bg-red-600 font-bold text-white ${
+      size === "lg" ? "h-14 w-14 text-lg" : "h-10 w-10 text-sm"
+    }`}
+  >
+    {type}
+  </span>
+);

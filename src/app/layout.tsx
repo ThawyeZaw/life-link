@@ -1,83 +1,26 @@
-// src/app/layout.tsx
-
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Navbar } from "@/components/Navbar";
 import "./globals.css";
+import { Navbar } from "@/components/layout/Navbar";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  display: "swap",
-});
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: {
-    default: "LifeLink — Emergency Blood Network Myanmar",
-    template: "%s | LifeLink",
-  },
+  title: "LifeLink — Every Drop Counts",
   description:
-    "LifeLink connects verified hospitals, patients, and compatible blood donors across Myanmar in real time.",
-  keywords: [
-    "LifeLink",
-    "blood donation",
-    "blood donor",
-    "emergency blood",
-    "Myanmar",
-    "hospital",
-    "patient",
-    "blood request",
-    "Vertex Red",
-  ],
-  authors: [
-    {
-      name: "Team Vertex Red",
-    },
-  ],
-  creator: "Team Vertex Red",
-  applicationName: "LifeLink",
-  openGraph: {
-    title: "LifeLink — Emergency Blood Network Myanmar",
-    description:
-      "Connecting hospitals, patients, and compatible blood donors when every second matters.",
-    type: "website",
-    locale: "en_MM",
-    siteName: "LifeLink",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "LifeLink — Emergency Blood Network Myanmar",
-    description:
-      "Connecting blood donors, hospitals, and urgent medical needs across Myanmar.",
-  },
+    "Connecting blood donors with patients and hospitals across Myanmar, privately and fast.",
+  icons: { icon: "/logo.png" },
 };
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  themeColor: "#101B35",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} h-full scroll-smooth`}
-      suppressHydrationWarning
-    >
-      <body
-        className="min-h-full bg-background text-foreground antialiased"
-        suppressHydrationWarning
-      >
-        {children}
+    <html lang="en">
+      <body className={`${inter.variable} min-h-dvh`}>
         <Navbar />
+        <main className="pt-16">{children}</main>
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;
