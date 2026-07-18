@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
+import { ChatBot } from "@/components/chat/ChatBot";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -18,6 +19,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       <body className={`${inter.variable} min-h-dvh`}>
         <Navbar />
         <main className="pt-16">{children}</main>
+        <ChatBot />
       </body>
     </html>
   );

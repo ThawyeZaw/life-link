@@ -21,6 +21,7 @@ export const RadarSearch = ({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const [emailResult, setEmailResult] = useState<{ total: number; sent: number; failed: number } | null>(null);
 
   const scan = useCallback(async (r: number) => {
     setScanning(true);
@@ -62,6 +63,7 @@ export const RadarSearch = ({
   const sendInvites = async () => {
     setSending(true);
     setError("");
+    setEmailResult(null);
     try {
       const res = await fetch("/api/invite", {
         method: "POST",
@@ -70,6 +72,15 @@ export const RadarSearch = ({
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Could not send alerts");
+      // Show email delivery result to the user
+      if (json.emailed < json.invited) {
+        const failed = json.failures?.length ?? json.invited - json.emailed;
+        setEmailResult({
+          total: json.invited,
+          sent: json.emailed,
+          failed,
+        });
+      }
       onInvited();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not send alerts");
@@ -110,6 +121,18 @@ export const RadarSearch = ({
         <>
           <DonorList donors={donors} selected={selected} onToggle={toggle} />
           {error && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>}
+          {emailResult && (
+            <div className="rounded-xl px-4 py-3 text-sm text-amber-800 bg-amber-50">
+              {emailResult.sent > 0
+                ? `${emailResult.sent} of ${emailResult.total} donor(s) notified. `
+                : `No emails were sent. `}
+              {emailResult.failed > 0 && (
+                <span>
+                  {emailResult.failed} email(s) failed. Check the server logs or verify your Resend domain setup.
+                </span>
+              )}
+            </div>
+          )}
           <button
             onClick={sendInvites}
             disabled={sending || selected.size === 0}

@@ -85,8 +85,27 @@ export const POST = async (req: Request) => {
     (r) => r.status === "fulfilled" && r.value.sent
   ).length;
 
+  // Collect failure reasons for diagnostic visibility
+  const failures: { email: string; reason: string }[] = [];
+  for (let i = 0; i < results.length; i++) {
+    const r = results[i];
+    const m = matches![i];
+    const donor = m.profiles as unknown as { full_name: string; email: string };
+    if (r.status === "rejected") {
+      failures.push({ email: donor.email, reason: "Promise rejected" });
+    } else if (r.status === "fulfilled" && !r.value.sent) {
+      failures.push({ email: donor.email, reason: r.value.reason });
+    }
+  }
+
+  // Log a summary so server-side logs are actionable
+  if (failures.length > 0) {
+    console.error(`[invite] ${failures.length}/${results.length} email(s) failed:`, failures);
+  }
+
   return NextResponse.json({
     invited: matches?.length ?? 0,
     emailed,
+    failures: failures.length > 0 ? failures : undefined,
   });
 };
