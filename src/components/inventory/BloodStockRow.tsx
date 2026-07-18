@@ -1,87 +1,265 @@
-// BloodStockRow — blood type inventory row with bar + trend
-// Thinzar Kyaw — Frontend Domain
+"use client";
 
-import { AlertTriangle, Clock, CheckCircle, TrendingUp, TrendingDown, Minus } from "lucide-react";
+// src/components/command/BloodStockRow.tsx
+// LifeLink — Blood inventory status row
+// Team Vertex Red
+
+import {
+  AlertTriangle,
+  ArrowDownRight,
+  ArrowUpRight,
+  CheckCircle2,
+  ChevronRight,
+  Clock3,
+  Droplets,
+  Minus,
+  PackageCheck,
+} from "lucide-react";
 import { clsx } from "clsx";
+
 import type { BloodStock, StockLevel } from "@/components/data/mockData";
-import { ChevronRight } from "lucide-react";
 
 interface BloodStockRowProps {
   stock: BloodStock;
   maxUnits?: number;
+  onClick?: (bloodType: string) => void;
 }
 
-const LEVEL_CONFIG: Record<StockLevel, {
-  badge: string;
-  bar: string;
-  icon: React.ElementType;
-}> = {
+const LEVEL_CONFIG: Record<
+  StockLevel,
+  {
+    label: string;
+    description: string;
+    badge: string;
+    iconWrapper: string;
+    bar: string;
+    glow: string;
+    icon: typeof AlertTriangle;
+  }
+> = {
   CRITICAL: {
-    badge: "bg-red-100 text-red-700 border border-red-200",
-    bar: "bg-red-500",
+    label: "Critical",
+    description: "Immediate restock required",
+    badge: "border-red-200 bg-red-50 text-red-700",
+    iconWrapper: "bg-red-100 text-red-600",
+    bar: "bg-gradient-to-r from-red-600 to-rose-400",
+    glow: "shadow-[0_6px_18px_rgba(239,68,68,0.3)]",
     icon: AlertTriangle,
   },
   LOW: {
-    badge: "bg-amber-100 text-amber-700 border border-amber-200",
-    bar: "bg-amber-500",
-    icon: Clock,
+    label: "Low stock",
+    description: "Inventory below safe level",
+    badge: "border-amber-200 bg-amber-50 text-amber-700",
+    iconWrapper: "bg-amber-100 text-amber-600",
+    bar: "bg-gradient-to-r from-amber-500 to-orange-400",
+    glow: "shadow-[0_6px_18px_rgba(245,158,11,0.28)]",
+    icon: Clock3,
   },
   ADEQUATE: {
-    badge: "bg-green-100 text-green-700 border border-green-200",
-    bar: "bg-green-500",
-    icon: CheckCircle,
+    label: "Adequate",
+    description: "Inventory within safe range",
+    badge: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    iconWrapper: "bg-emerald-100 text-emerald-600",
+    bar: "bg-gradient-to-r from-emerald-500 to-teal-400",
+    glow: "shadow-[0_6px_18px_rgba(16,185,129,0.25)]",
+    icon: CheckCircle2,
   },
 };
 
-const TREND_ICON = {
-  up:     { icon: TrendingUp,   color: "text-green-500" },
-  down:   { icon: TrendingDown, color: "text-red-500"   },
-  stable: { icon: Minus,        color: "text-gray-400"  },
-};
+const TREND_CONFIG = {
+  up: {
+    label: "Rising",
+    icon: ArrowUpRight,
+    text: "text-emerald-600",
+    background: "bg-emerald-50",
+  },
+  down: {
+    label: "Falling",
+    icon: ArrowDownRight,
+    text: "text-red-600",
+    background: "bg-red-50",
+  },
+  stable: {
+    label: "Stable",
+    icon: Minus,
+    text: "text-slate-500",
+    background: "bg-slate-100",
+  },
+} as const;
 
-export const BloodStockRow = ({ stock, maxUnits = 40 }: BloodStockRowProps) => {
-  const config = LEVEL_CONFIG[stock.level];
-  const LevelIcon = config.icon;
-  const trendInfo = TREND_ICON[stock.trend];
-  const TrendIcon = trendInfo.icon;
-  const pct = Math.min((stock.units / maxUnits) * 100, 100);
+export function BloodStockRow({
+  stock,
+  maxUnits = 40,
+  onClick,
+}: BloodStockRowProps) {
+  const level = LEVEL_CONFIG[stock.level];
+  const trend = TREND_CONFIG[stock.trend];
+  const LevelIcon = level.icon;
+  const TrendIcon = trend.icon;
+
+  const safeMaxUnits = Math.max(maxUnits, 1);
+  const percentage = Math.min(
+    Math.max((stock.units / safeMaxUnits) * 100, 0),
+    100,
+  );
+
+  const isInteractive = Boolean(onClick);
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3.5">
-      {/* Blood type badge */}
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-vr-navy text-sm font-bold text-white">
-        {stock.bloodType}
-      </div>
+    <button
+      type="button"
+      onClick={() => onClick?.(stock.bloodType)}
+      disabled={!isInteractive}
+      className={clsx(
+        "group relative w-full overflow-hidden rounded-[1.4rem] border border-slate-100 bg-white p-4 text-left transition-all duration-300 sm:p-5",
+        isInteractive
+          ? "cursor-pointer hover:-translate-y-0.5 hover:border-slate-200 hover:shadow-[0_18px_45px_rgba(15,23,42,0.08)]"
+          : "cursor-default",
+      )}
+    >
+      <div
+        aria-hidden="true"
+        className={clsx(
+          "absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-60 blur-3xl",
+          stock.level === "CRITICAL" && "bg-red-100",
+          stock.level === "LOW" && "bg-amber-100",
+          stock.level === "ADEQUATE" && "bg-emerald-100",
+        )}
+      />
 
-      {/* Middle: badge + bar */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1.5">
-          <span
+      <div className="relative flex items-center gap-4">
+        <div className="relative shrink-0">
+          <div
             className={clsx(
-              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold",
-              config.badge
+              "flex h-14 w-14 items-center justify-center rounded-[1.15rem] bg-[#0D1933] text-base font-black text-white shadow-[0_10px_25px_rgba(13,25,51,0.2)] transition-transform duration-300",
+              isInteractive && "group-hover:scale-105",
             )}
           >
-            <LevelIcon className="h-3 w-3" strokeWidth={2.5} />
-            {stock.level}
+            {stock.bloodType}
+          </div>
+
+          <span
+            className={clsx(
+              "absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-lg border-2 border-white",
+              level.iconWrapper,
+            )}
+          >
+            <LevelIcon className="h-3 w-3" strokeWidth={2.7} />
           </span>
         </div>
-        <div className="h-1.5 w-full rounded-full bg-gray-100">
-          <div
-            className={clsx("h-1.5 rounded-full transition-all", config.bar)}
-            style={{ width: `${pct}%` }}
-          />
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className={clsx(
+                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.1em]",
+                    level.badge,
+                  )}
+                >
+                  <LevelIcon className="h-3.5 w-3.5" strokeWidth={2.5} />
+                  {level.label}
+                </span>
+
+                <span
+                  className={clsx(
+                    "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.08em]",
+                    trend.background,
+                    trend.text,
+                  )}
+                >
+                  <TrendIcon className="h-3.5 w-3.5" />
+                  {trend.label}
+                </span>
+              </div>
+
+              <p className="mt-2 truncate text-xs font-semibold text-slate-500">
+                {level.description}
+              </p>
+            </div>
+
+            <div className="shrink-0 text-right">
+              <div className="flex items-baseline justify-end gap-1">
+                <span className="text-xl font-black tracking-tight text-[#0D1933]">
+                  {stock.units}
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400">
+                  units
+                </span>
+              </div>
+
+              <p className="mt-0.5 text-[10px] font-semibold text-slate-400">
+                of {safeMaxUnits} capacity
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
+                <Droplets className="h-3.5 w-3.5" />
+                Inventory level
+              </span>
+
+              <span className="text-[10px] font-black text-slate-500">
+                {Math.round(percentage)}%
+              </span>
+            </div>
+
+            <div
+              className="h-2.5 overflow-hidden rounded-full bg-slate-100"
+              role="progressbar"
+              aria-label={`${stock.bloodType} inventory`}
+              aria-valuemin={0}
+              aria-valuemax={safeMaxUnits}
+              aria-valuenow={stock.units}
+            >
+              <div
+                className={clsx(
+                  "h-full rounded-full transition-all duration-700 ease-out",
+                  level.bar,
+                  level.glow,
+                )}
+                style={{ width: `${percentage}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
+            <div className="flex items-center gap-2">
+              <span
+                className={clsx(
+                  "flex h-7 w-7 items-center justify-center rounded-lg",
+                  level.iconWrapper,
+                )}
+              >
+                <PackageCheck className="h-3.5 w-3.5" />
+              </span>
+
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-400">
+                  Availability
+                </p>
+
+                <p className="text-[11px] font-bold text-[#0D1933]">
+                  {stock.level === "CRITICAL"
+                    ? "Restock now"
+                    : stock.level === "LOW"
+                      ? "Monitor closely"
+                      : "Ready for dispatch"}
+                </p>
+              </div>
+            </div>
+
+            {isInteractive && (
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-100 bg-slate-50 text-slate-400 transition group-hover:border-slate-200 group-hover:bg-[#0D1933] group-hover:text-white">
+                <ChevronRight className="h-4 w-4" />
+              </span>
+            )}
+          </div>
         </div>
       </div>
-
-      {/* Right: units + trend */}
-      <div className="flex items-center gap-2 shrink-0">
-        <TrendIcon className={clsx("h-4 w-4", trendInfo.color)} />
-        <span className="text-sm font-semibold text-gray-600">
-          {stock.units} units
-        </span>
-        <ChevronRight className="h-4 w-4 text-gray-300" />
-      </div>
-    </div>
+    </button>
   );
-};
+}
