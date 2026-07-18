@@ -18,10 +18,10 @@ import { clsx } from "clsx";
 
 const TABS = [
   {
-    href: "/passport",
-    pathname: "/passport",
+    href: "/profile",
+    pathname: "/profile",
     hash: "",
-    label: "Passport",
+    label: "Profile",
     icon: UserRound,
   },
   {

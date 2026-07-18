@@ -112,7 +112,7 @@ export function DonorPassportCard({
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-emerald-100 backdrop-blur">
                 <Droplets className="h-3.5 w-3.5" />
-                Donor passport
+                Verified donor profile
               </span>
 
               <span className="hidden items-center gap-1 rounded-full border border-white/10 bg-white/[0.07] px-2 py-1 text-[8px] font-black uppercase tracking-[0.12em] text-white/70 sm:inline-flex">
