@@ -4,17 +4,16 @@
 import Link from "next/link";
 import { MapPin, ArrowLeft } from "lucide-react";
 import { DonorTopBar } from "@/components/layout/DonorTopBar";
-import { BottomNav } from "@/components/layout/BottomNav";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Donation Map — Vertex Red",
+  title: "Donation Map — LifeLink",
   description: "Find nearby blood donation centers and active requests across Myanmar.",
 };
 
 export default function MapPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50 pb-24">
+    <div className="flex min-h-screen flex-col bg-gray-50">
       <DonorTopBar title="Donation Map" subtitle="Find nearby ways to give" />
 
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-12">
@@ -57,7 +56,6 @@ export default function MapPage() {
         </div>
       </div>
 
-      <BottomNav />
     </div>
   );
 }

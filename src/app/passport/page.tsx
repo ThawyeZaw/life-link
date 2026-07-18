@@ -4,7 +4,6 @@
 
 import { useEffect, useState } from "react";
 import { DonorTopBar } from "@/components/layout/DonorTopBar";
-import { BottomNav } from "@/components/layout/BottomNav";
 import { DonorPassportCard } from "@/components/passport/DonorPassportCard";
 import { EligibilitySection } from "@/components/passport/EligibilitySection";
 import { ActiveDispatchCard } from "@/components/passport/ActiveDispatchCard";
@@ -80,7 +79,7 @@ export default function PassportPage() {
   const displayProfile = profile ?? MOCK_PROFILE;
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50 pb-24">
+    <div className="flex min-h-screen flex-col bg-gray-50">
       <DonorTopBar title="Passport" />
 
       {loading ? (
@@ -119,7 +118,6 @@ export default function PassportPage() {
         </div>
       )}
 
-      <BottomNav />
     </div>
   );
 }

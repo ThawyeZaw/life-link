@@ -8,7 +8,7 @@ import { MapPreview } from "@/components/dashboard/MapPreview";
 import { PingHero } from "@/components/dashboard/PingHero";
 
 export const metadata: Metadata = {
-  title: "Operations Dashboard — Vertex Red",
+  title: "Operations Dashboard — LifeLink",
   description: "Live emergency blood requests, location feed, and donor dispatch.",
 };
 

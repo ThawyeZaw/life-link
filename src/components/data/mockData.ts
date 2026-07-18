@@ -1,5 +1,5 @@
 // ============================================================================
-// Vertex Red — Myanmar-Localized Mock Data
+// LifeLink — Myanmar-Localized Mock Data
 // Thinzar Kyaw — Frontend Domain
 //
 // Used as fallback when Supabase is unavailable / user is unauthenticated.

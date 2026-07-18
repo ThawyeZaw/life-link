@@ -1,6 +1,7 @@
 "use client";
 // Command Center page — hospital admin real-time request dashboard
 // Thinzar Kyaw — Frontend Domain
+// Navbar (floating pill) is rendered site-wide via root layout
 
 import { useEffect, useState, useCallback } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
@@ -86,7 +87,7 @@ export default function CommandPage() {
   });
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-water-subtle water-ripple">
       <HospitalTopBar
         title="Command Center"
         subtitle="System Live"
@@ -94,22 +95,22 @@ export default function CommandPage() {
       />
 
       {/* Search bar */}
-      <div className="bg-white px-4 py-3 border-b border-gray-100">
+      <div className="glass-surface px-4 py-3 border-b border-white/20">
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               id="command-search"
               type="text"
               placeholder="Search hospital or township…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-9 pr-3 text-sm text-vr-navy placeholder-gray-400 focus:border-vr-teal focus:outline-none transition-colors"
+              className="w-full rounded-xl border border-white/30 bg-white/60 py-2.5 pl-9 pr-3 text-sm text-gray-900 placeholder-slate-400 focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-500/40 transition-colors"
             />
           </div>
           <button
             aria-label="Filter"
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 transition-colors"
+            className="glass-pill flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-white/70"
           >
             <SlidersHorizontal className="h-4 w-4" />
           </button>
@@ -117,12 +118,12 @@ export default function CommandPage() {
       </div>
 
       {/* Map placeholder */}
-      <div className="bg-white pt-4 pb-2">
+      <div className="pt-4 pb-2 px-4">
         <MapPlaceholder />
       </div>
 
       {/* Filter tabs */}
-      <div className="bg-white px-4 py-3 border-b border-gray-100">
+      <div className="px-4 py-3">
         <div className="flex gap-2">
           {TABS.map((tab) => (
             <button
@@ -132,8 +133,8 @@ export default function CommandPage() {
               className={clsx(
                 "rounded-xl px-3 py-1.5 text-xs font-bold tracking-wide transition-all",
                 activeTab === tab.key
-                  ? "bg-vr-navy text-white shadow-sm"
-                  : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                  ? "bg-red-600 text-white shadow-sm"
+                  : "glass-pill text-slate-600 hover:bg-white/60"
               )}
             >
               {tab.label}
@@ -143,14 +144,14 @@ export default function CommandPage() {
       </div>
 
       {/* Request list */}
-      <div className="flex-1 space-y-3 py-4">
+      <div className="flex-1 space-y-3 py-4 px-4">
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-vr-teal border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-red-600 border-t-transparent" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center px-6">
-            <p className="text-gray-400 text-sm">No requests match this filter.</p>
+            <p className="text-slate-500 text-sm">No requests match this filter.</p>
           </div>
         ) : (
           filtered.map((req, i) => (
@@ -168,4 +169,4 @@ export default function CommandPage() {
       </div>
     </div>
   );
-}
+};

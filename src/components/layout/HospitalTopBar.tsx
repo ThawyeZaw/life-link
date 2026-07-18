@@ -1,4 +1,4 @@
-// HospitalTopBar — dark top bar for hospital/admin-facing screens
+// HospitalTopBar — glass header for hospital/admin-facing screens
 // Thinzar Kyaw — Frontend Domain
 
 import { Menu } from "lucide-react";
@@ -15,9 +15,9 @@ export const HospitalTopBar = ({
   isLive = true,
 }: HospitalTopBarProps) => {
   return (
-    <header className="flex items-center justify-between px-5 pt-6 pb-4 bg-vr-navy">
+    <header className="glass-elevated flex items-center justify-between px-5 pt-6 pb-4 border-b border-white/20">
       <div>
-        <h1 className="text-xl font-bold text-white">{title}</h1>
+        <h1 className="text-xl font-bold text-gray-900">{title}</h1>
         {subtitle && (
           <div className="flex items-center gap-2 mt-1">
             {isLive && (
@@ -26,7 +26,7 @@ export const HospitalTopBar = ({
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
               </span>
             )}
-            <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase">
+            <p className="text-xs font-semibold tracking-widest text-slate-500 uppercase">
               {subtitle}
             </p>
           </div>
@@ -34,7 +34,7 @@ export const HospitalTopBar = ({
       </div>
       <button
         aria-label="Open menu"
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+        className="flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-white/50 focus:outline-none focus:ring-2 focus:ring-red-500"
       >
         <Menu className="h-5 w-5" />
       </button>

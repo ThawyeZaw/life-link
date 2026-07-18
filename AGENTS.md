@@ -1,4 +1,4 @@
-# AGENTS.md — AI Code Generation Rules for Vertex Red
+# AGENTS.md — AI Code Generation Rules for LifeLink
 
 > These are the **mandatory system instructions** for any AI assistant (GitHub Copilot, Cursor, Gemini, Claude, etc.) generating code in this repository. All rules are **non-negotiable** and apply to every code generation request unless the user explicitly overrides a specific rule in their prompt.
 
@@ -6,7 +6,7 @@
 
 ## 🏗️ Project Context
 
-**Vertex Red** is a real-time emergency platform connecting blood donors, hospitals, and urgent medical needs across Myanmar. It is built with:
+**LifeLink** is a real-time emergency platform connecting blood donors, hospitals, and urgent medical needs across Myanmar. It is built with:
 - **Next.js** (App Router) — frontend framework
 - **Tailwind CSS** — all styling (utility-first, mobile-first)
 - **Lucide React** — icon library
@@ -22,7 +22,7 @@
 |---|---|---|
 | **Thaw Ye Zaw** | Backend / Database | `/lib/supabase/`, `/api/`, `/utils/` |
 | **Thinzar Kyaw** | Frontend / UI | `/app/`, `/components/`, `/styles/` |
-| **Zyy Lin Htet** | UI/UX Design | `/public/` (assets only) |
+| **Zay Lynn Htet** | UI/UX Design | `/public/` (assets only) |
 
 ---
 
@@ -205,4 +205,4 @@ Before submitting any generated code, verify:
 
 ---
 
-*Last updated: July 2026 — Vertex Red Hackathon Team*
+*Last updated: July 2026 — LifeLink Hackathon Team*

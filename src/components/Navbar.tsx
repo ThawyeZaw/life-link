@@ -1,20 +1,24 @@
 "use client";
 
-// Navbar — state-aware top navigation
-// Public routes → "Login / Join" auth modal · /dashboard → Profile / Logout
+// Curved Floating Navigation Pill — site-wide bottom-positioned glassmorphism capsule
+// Detects all app routes (dashboard, passport, broadcast, inventory, map, command)
+// Public routes → nav links + "Login / Join" auth modal
+// App routes → dashboard links + Logout
+// No logo/heading — pure navigation pill
 // Thinzar Kyaw — Frontend Domain
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Droplets, Menu, X, UserCircle2, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, X, UserCircle2, LogOut, LayoutDashboard } from "lucide-react";
 import { clsx } from "clsx";
 import { AuthModal } from "@/components/AuthModal";
 
 const PUBLIC_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/dashboard", label: "Request Board" },
-  { href: "/map", label: "Live Map" },
+  { href: "/about", label: "About" },
+  { href: "/services", label: "Services" },
+  { href: "/team", label: "Our Team" },
+  { href: "/contact", label: "Contact" },
 ];
 
 const DASHBOARD_LINKS = [
@@ -22,117 +26,147 @@ const DASHBOARD_LINKS = [
   { href: "/passport", label: "Donor Passport" },
   { href: "/broadcast", label: "Broadcast" },
   { href: "/inventory", label: "Inventory" },
+  { href: "/map", label: "Live Map" },
 ];
+
+const APP_ROUTES = ["/dashboard", "/passport", "/broadcast", "/inventory", "/map", "/command"];
 
 export const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const isDashboard = pathname?.startsWith("/dashboard") ?? false;
-  const links = isDashboard ? DASHBOARD_LINKS : PUBLIC_LINKS;
+  const isApp = APP_ROUTES.some((route) => pathname?.startsWith(route)) ?? false;
+  const links = isApp ? DASHBOARD_LINKS : PUBLIC_LINKS;
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  // Hide pill on scroll down, show on scroll up (saves vertical space)
+  useEffect(() => {
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      if (currentY > lastScrollY && currentY > 100) {
+        setVisible(false);
+      } else {
+        setVisible(true);
+      }
+      setLastScrollY(currentY);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [lastScrollY]);
 
   const handleLogout = () => {
-    // TODO (Backend — Thaw Ye Zaw): wire up Supabase signOut
-    // Wipe all client-side storage to prevent residual session artifacts.
     window.sessionStorage.removeItem("vr-demo-session");
     window.localStorage.removeItem("vr-demo-session");
     router.replace("/");
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/90 backdrop-blur">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 md:px-6">
-        {/* Brand */}
-        <Link href="/" className="flex min-h-[44px] items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-vr-red shadow-sm">
-            <Droplets className="h-5 w-5 text-white" />
+    <>
+      {/* Curved floating pill */}
+      <nav
+        className={clsx(
+          "fixed bottom-5 left-1/2 z-50 -translate-x-1/2 transition-all duration-400 ease-in-out",
+          visible
+            ? "translate-y-0 opacity-100"
+            : "translate-y-24 opacity-0"
+        )}
+      >
+        <div className="glass-overlay flex items-center gap-1 rounded-full px-3 py-2 shadow-2xl shadow-slate-900/10 sm:gap-2 sm:px-4 sm:py-2.5">
+          {/* Desktop nav links */}
+          <div className="hidden items-center gap-0.5 md:flex">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={clsx(
+                  "flex min-h-[44px] items-center rounded-full px-4 text-sm font-medium transition-colors",
+                  pathname === link.href
+                    ? "bg-white/70 text-red-600 shadow-sm"
+                    : "text-slate-600 hover:bg-white/40 hover:text-gray-900"
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
-          <span className="text-lg font-black tracking-tight text-vr-navy">
-            Vertex<span className="text-red-600">Red</span>
-          </span>
-        </Link>
 
-        {/* Desktop links */}
-        <div className="hidden items-center gap-1 md:flex">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={clsx(
-                "flex min-h-[44px] items-center rounded-xl px-3 text-sm font-semibold transition hover:bg-gray-50 hover:text-red-600",
-                pathname === link.href ? "text-red-600" : "text-gray-600"
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
+          {/* Divider — visible when desktop links present */}
+          <div className="mx-1 hidden h-6 w-px bg-slate-200 md:block" aria-hidden="true" />
 
-        {/* Right actions — conditional on route */}
-        <div className="flex items-center gap-2">
-          {isDashboard ? (
-            <>
+          {/* Auth / Dashboard actions */}
+          {isApp ? (
+            <div className="flex items-center gap-1">
               <Link
                 href="/dashboard"
-                className="flex min-h-[44px] items-center gap-2 rounded-xl px-3 text-sm font-bold text-gray-700 transition hover:bg-gray-100"
+                className="flex min-h-[44px] items-center gap-2 rounded-full px-3 text-sm font-semibold text-slate-600 transition hover:bg-white/50"
               >
-                <LayoutDashboard className="h-5 w-5 text-red-600" />
+                <LayoutDashboard className="h-4 w-4 text-red-600" />
                 <span className="hidden sm:inline">Dashboard</span>
               </Link>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex min-h-[44px] items-center gap-2 rounded-xl border border-gray-200 px-4 text-sm font-bold text-gray-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="flex min-h-[44px] items-center gap-2 rounded-full px-3 text-sm font-semibold text-slate-600 transition hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
               >
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Logout</span>
               </button>
-            </>
+            </div>
           ) : (
             <button
               type="button"
               onClick={() => setAuthOpen(true)}
-              className="flex min-h-[44px] items-center gap-2 rounded-xl bg-red-600 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              className="group flex min-h-[44px] items-center gap-2 rounded-full bg-red-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-red-500/20 transition-all duration-300 hover:bg-red-700 hover:shadow-lg hover:shadow-red-500/30 focus:outline-none focus:ring-2 focus:ring-red-500 active:scale-95"
             >
-              <UserCircle2 className="h-5 w-5" />
+              <UserCircle2 className="h-4 w-4 transition-transform group-hover:scale-110" />
               Login / Join
             </button>
           )}
 
-          {/* Mobile hamburger */}
+          {/* Mobile hamburger — opens menu upward */}
           <button
             type="button"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
             onClick={() => setMenuOpen((v) => !v)}
-            className="flex h-11 w-11 items-center justify-center rounded-xl text-gray-600 transition hover:bg-gray-100 md:hidden"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-slate-600 transition hover:bg-white/50 focus:outline-none focus:ring-2 focus:ring-red-500 md:hidden"
           >
-            {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
-      </nav>
 
-      {/* Mobile menu */}
-      <div className={clsx("border-t border-gray-100 bg-white md:hidden", !menuOpen && "hidden")}>
-        <div className="space-y-1 px-4 py-3">
+        {/* Mobile menu — opens upward from the pill */}
+        <div
+          className={clsx(
+            "absolute bottom-full left-0 right-0 mb-3 rounded-2xl border border-white/50 bg-white/92 p-3 shadow-xl backdrop-blur-2xl md:hidden",
+            !menuOpen && "hidden"
+          )}
+        >
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMenuOpen(false)}
               className={clsx(
-                "flex min-h-[44px] items-center rounded-xl px-3 text-base font-semibold transition hover:bg-red-50 hover:text-red-600",
-                pathname === link.href ? "text-red-600" : "text-gray-700"
+                "flex min-h-[44px] items-center rounded-xl px-4 text-sm font-semibold transition",
+                pathname === link.href
+                  ? "bg-white/70 text-red-600"
+                  : "text-slate-700 hover:bg-white/50 hover:text-red-600"
               )}
             >
               {link.label}
             </Link>
           ))}
         </div>
-      </div>
+      </nav>
+
+      {/* Bottom spacer — prevents content from being hidden behind the floating pill */}
+      <div className="h-24" aria-hidden="true" />
 
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
-    </header>
+    </>
   );
 };

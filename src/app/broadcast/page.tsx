@@ -1,6 +1,7 @@
 "use client";
 // Emergency Broadcast page — hospital posts a new blood request
 // Thinzar Kyaw — Frontend Domain
+// Navbar (floating pill) is rendered site-wide via root layout
 
 import { useEffect, useState } from "react";
 import { Radio, Shield, Lock } from "lucide-react";
@@ -63,21 +64,21 @@ export default function BroadcastPage() {
 
   if (broadcastState === "success") {
     return (
-      <div className="flex min-h-screen flex-col bg-gray-50">
+      <div className="flex min-h-screen flex-col bg-water-subtle water-ripple">
         <HospitalTopBar title="New Broadcast" subtitle="Authorized Dispatch" />
         <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-100 mb-6">
+          <div className="glass-elevated flex h-20 w-20 items-center justify-center rounded-full mb-6">
             <Radio className="h-10 w-10 text-green-600" />
           </div>
-          <h2 className="text-xl font-bold text-vr-navy">Broadcast Sent!</h2>
-          <p className="mt-2 text-sm text-gray-500 max-w-xs leading-relaxed">
+          <h2 className="text-xl font-bold text-gray-900">Broadcast Sent!</h2>
+          <p className="mt-2 text-sm text-slate-600 max-w-xs leading-relaxed">
             Compatible donors in{" "}
             {hospitals.find((h) => h.id === facilityId)?.township ?? "the area"} have
             been notified. You will receive updates as donors respond.
           </p>
           <button
             onClick={() => setBroadcastState("idle")}
-            className="mt-8 rounded-2xl bg-vr-navy px-8 py-3.5 text-sm font-bold text-white hover:bg-gray-800 transition-colors"
+            className="mt-8 rounded-2xl bg-red-600 px-8 py-3.5 text-sm font-bold text-white shadow-md shadow-red-500/25 transition-colors hover:bg-red-700 active:scale-95"
           >
             New Broadcast
           </button>
@@ -87,7 +88,7 @@ export default function BroadcastPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-water-subtle water-ripple">
       <HospitalTopBar title="New Broadcast" subtitle="Authorized Dispatch" />
 
       <div className="flex-1 space-y-6 px-4 py-6">
@@ -118,9 +119,9 @@ export default function BroadcastPage() {
         </div>
 
         {/* Privacy note */}
-        <div className="flex items-start gap-2 rounded-2xl bg-gray-100 px-4 py-3">
-          <Lock className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
-          <p className="text-xs text-gray-500 leading-relaxed">
+        <div className="glass-surface flex items-start gap-2 rounded-2xl px-4 py-3">
+          <Lock className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
+          <p className="text-xs text-slate-600 leading-relaxed">
             This broadcast uses encrypted, anonymous location services to identify
             nearby eligible donors. Patient data is never transmitted.
           </p>
@@ -131,7 +132,7 @@ export default function BroadcastPage() {
           id="broadcast-submit"
           onClick={handleBroadcast}
           disabled={broadcastState === "loading"}
-          className="w-full rounded-2xl bg-vr-red py-4 text-base font-bold text-white shadow-lg shadow-red-200 transition-all hover:bg-red-700 active:scale-95 disabled:opacity-60"
+          className="animate-float-cta w-full rounded-2xl bg-red-600 py-4 text-base font-bold text-white shadow-lg shadow-red-500/25 transition-all hover:bg-red-700 active:scale-95 disabled:opacity-60 disabled:animation-none"
         >
           {broadcastState === "loading" ? (
             <span className="flex items-center justify-center gap-2">
@@ -148,4 +149,4 @@ export default function BroadcastPage() {
       </div>
     </div>
   );
-}
+};
