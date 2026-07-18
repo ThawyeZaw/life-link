@@ -1,19 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Minus, Plus } from "lucide-react";
+import {
+  AlertCircle,
+  Building2,
+  CheckCircle2,
+  Droplets,
+  FileText,
+  Loader2,
+  Minus,
+  Plus,
+  Send,
+  ShieldCheck,
+  UserRound,
+} from "lucide-react";
+
 import { createClient } from "@/lib/supabase/client";
 import { BloodTypePicker } from "@/components/auth/BloodTypePicker";
 import { HospitalPicker } from "./HospitalPicker";
 import { UrgencyPicker } from "./UrgencyPicker";
 import type { Hospital, Urgency } from "@/lib/types";
 
-const input =
-  "min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-base placeholder:text-slate-400 focus:border-red-500 focus:outline-none";
+const fieldClassName =
+  "min-h-12 w-full rounded-[18px] border border-slate-200 bg-white px-4 text-base font-medium text-slate-900 shadow-sm outline-none transition placeholder:font-normal placeholder:text-slate-400 hover:border-slate-300 focus:border-red-400 focus:ring-4 focus:ring-red-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400";
 
 export const NewRequestForm = () => {
   const router = useRouter();
+
   const [bloodType, setBloodType] = useState("");
   const [units, setUnits] = useState(1);
   const [urgency, setUrgency] = useState<Urgency>("URGENT");
@@ -25,7 +39,6 @@ export const NewRequestForm = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // If this account belongs to / owns an organization, attach the request to it
     createClient()
       .from("organizations")
       .select("id")
@@ -34,16 +47,26 @@ export const NewRequestForm = () => {
       .then(({ data }) => setOrgId(data?.id ?? null));
   }, []);
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!bloodType) return setError("Please select the blood type needed.");
-    if (!hospital) return setError("Please select the hospital where donation happens.");
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!bloodType) {
+      setError("Please select the blood type needed.");
+      return;
+    }
+
+    if (!hospital) {
+      setError("Please select the hospital where donation happens.");
+      return;
+    }
+
     setError("");
     setLoading(true);
 
     const supabase = createClient();
     const { data: userData } = await supabase.auth.getUser();
-    const { data, error: err } = await supabase
+
+    const { data, error: requestError } = await supabase
       .from("requests")
       .insert({
         requester_id: userData.user!.id,
@@ -58,61 +81,331 @@ export const NewRequestForm = () => {
       .select("id")
       .single();
 
-    if (err || !data) {
-      setError(err?.message ?? "Could not create request");
+    if (requestError || !data) {
+      setError(requestError?.message ?? "Could not create request");
       setLoading(false);
       return;
     }
+
     router.push(`/requests/${data.id}`);
   };
 
+  const completedSteps = [
+    Boolean(bloodType),
+    Boolean(hospital),
+    Boolean(urgency),
+  ].filter(Boolean).length;
+
   return (
-    <form onSubmit={submit} className="flex flex-col gap-5">
-      <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-slate-700">Blood type needed</span>
-        <BloodTypePicker value={bloodType} onChange={setBloodType} />
-      </div>
+    <form onSubmit={submit} className="space-y-6">
+      <section className="relative overflow-hidden rounded-[32px] border border-slate-200 bg-white p-4 shadow-[0_24px_70px_rgba(15,23,42,0.07)] sm:p-6">
+        <div className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-red-100/80 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-28 -left-20 h-56 w-56 rounded-full bg-slate-100 blur-3xl" />
 
-      <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-slate-700">Units needed</span>
-        <div className="flex items-center gap-3">
-          <button type="button" onClick={() => setUnits((u) => Math.max(1, u - 1))}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 text-slate-600 hover:bg-slate-50">
-            <Minus className="h-4 w-4" />
-          </button>
-          <span className="w-10 text-center text-xl font-bold text-slate-900">{units}</span>
-          <button type="button" onClick={() => setUnits((u) => Math.min(10, u + 1))}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 text-slate-600 hover:bg-slate-50">
-            <Plus className="h-4 w-4" />
-          </button>
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-start gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] bg-red-600 text-white shadow-[0_12px_28px_rgba(220,38,38,0.24)]">
+              <Droplets className="h-5 w-5" />
+            </div>
+
+            <div className="min-w-0">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-red-700">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-70" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-500" />
+                </span>
+                Emergency request
+              </span>
+
+              <h1 className="mt-2 text-xl font-black tracking-[-0.035em] text-slate-950 sm:text-2xl">
+                Create a blood request
+              </h1>
+
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                Enter the medical requirement and locate compatible donors near
+                the selected hospital.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-3 rounded-[20px] border border-slate-200 bg-slate-50 px-3.5 py-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-emerald-600 shadow-sm">
+              <CheckCircle2 className="h-4 w-4" />
+            </div>
+
+            <div>
+              <p className="text-sm font-black leading-none text-slate-900">
+                {completedSteps}/3
+              </p>
+              <p className="mt-1 text-[9px] font-black uppercase tracking-[0.1em] text-slate-400">
+                Required steps
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-slate-700">Urgency</span>
-        <UrgencyPicker value={urgency} onChange={setUrgency} />
-      </div>
+      <FormSection
+        step="01"
+        icon={<Droplets className="h-5 w-5" />}
+        title="Blood requirement"
+        description="Choose the required blood group and number of units."
+      >
+        <div className="space-y-5">
+          <div className="space-y-2">
+            <FieldLabel
+              label="Blood type needed"
+              required
+              complete={Boolean(bloodType)}
+            />
 
-      <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-slate-700">Donation hospital</span>
-        <HospitalPicker selected={hospital} onSelect={setHospital} />
-        <p className="text-xs text-slate-500">
-          Donors see the hospital location — the patient&apos;s address is never shared.
+            <BloodTypePicker
+              value={bloodType}
+              onChange={(value) => {
+                setBloodType(value);
+                setError("");
+              }}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <FieldLabel label="Units needed" required complete={units > 0} />
+
+            <div className="flex items-center justify-between gap-4 rounded-[22px] border border-slate-200 bg-slate-50 p-3">
+              <button
+                type="button"
+                onClick={() => setUnits((current) => Math.max(1, current - 1))}
+                disabled={units <= 1}
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Decrease units"
+              >
+                <Minus className="h-4 w-4" />
+              </button>
+
+              <div className="min-w-0 flex-1 text-center">
+                <p className="text-3xl font-black tracking-[-0.04em] text-slate-950">
+                  {units}
+                </p>
+                <p className="mt-1 text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
+                  {units === 1 ? "Blood unit" : "Blood units"}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setUnits((current) => Math.min(10, current + 1))}
+                disabled={units >= 10}
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Increase units"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
+
+            <p className="px-1 text-xs leading-5 text-slate-400">
+              You can request between 1 and 10 units.
+            </p>
+          </div>
+        </div>
+      </FormSection>
+
+      <FormSection
+        step="02"
+        icon={<AlertCircle className="h-5 w-5" />}
+        title="Emergency priority"
+        description="Set how urgently donors should be contacted."
+      >
+        <div className="space-y-2">
+          <FieldLabel label="Urgency level" required complete />
+
+          <UrgencyPicker value={urgency} onChange={setUrgency} />
+        </div>
+      </FormSection>
+
+      <FormSection
+        step="03"
+        icon={<Building2 className="h-5 w-5" />}
+        title="Donation hospital"
+        description="Choose the hospital where the donor should arrive."
+      >
+        <div className="space-y-3">
+          <FieldLabel label="Hospital" required complete={Boolean(hospital)} />
+
+          <HospitalPicker
+            selected={hospital}
+            onSelect={(selectedHospital) => {
+              setHospital(selectedHospital);
+              setError("");
+            }}
+          />
+
+          <div className="flex items-start gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-xs leading-5 text-emerald-800">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+            <p>
+              Donors only see the selected hospital location. The patient&apos;s
+              home address and private information are never shared.
+            </p>
+          </div>
+        </div>
+      </FormSection>
+
+      <FormSection
+        step="04"
+        icon={<FileText className="h-5 w-5" />}
+        title="Additional details"
+        description="Add optional information to help the hospital and donors coordinate."
+      >
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <FieldLabel label="Patient name" optional />
+
+            <div className="relative">
+              <UserRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
+              <input
+                className={`${fieldClassName} pl-11`}
+                placeholder="Enter patient name"
+                value={patientName}
+                onChange={(event) => setPatientName(event.target.value)}
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <FieldLabel label="Notes for donors" optional />
+
+            <div className="relative">
+              <FileText className="pointer-events-none absolute left-4 top-4 h-4 w-4 text-slate-400" />
+
+              <textarea
+                className={`${fieldClassName} min-h-28 resize-y py-3 pl-11 leading-6`}
+                placeholder="Add arrival instructions, timing, entrance details, or other helpful information"
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+                disabled={loading}
+              />
+            </div>
+
+            <div className="flex justify-end px-1">
+              <span className="text-[10px] font-bold text-slate-400">
+                {notes.length} characters
+              </span>
+            </div>
+          </div>
+        </div>
+      </FormSection>
+
+      {error && (
+        <div
+          role="alert"
+          className="flex items-start gap-3 rounded-[22px] border border-red-200 bg-red-50 px-4 py-3.5 text-sm leading-6 text-red-700"
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-red-600 shadow-sm">
+            <AlertCircle className="h-4 w-4" />
+          </span>
+
+          <div>
+            <p className="font-black text-red-800">
+              Please check the request details
+            </p>
+            <p className="mt-0.5">{error}</p>
+          </div>
+        </div>
+      )}
+
+      <div className="sticky bottom-3 z-30 rounded-[26px] border border-white/90 bg-white/95 p-3 shadow-[0_20px_60px_rgba(15,23,42,0.16)] backdrop-blur-xl">
+        <button
+          type="submit"
+          disabled={loading}
+          className="group flex min-h-14 w-full items-center justify-center gap-2.5 rounded-[20px] bg-red-600 px-5 text-base font-black text-white shadow-[0_14px_34px_rgba(220,38,38,0.28)] transition hover:bg-red-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {loading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <Send className="h-5 w-5 transition group-hover:translate-x-0.5" />
+          )}
+
+          {loading
+            ? "Creating emergency request..."
+            : "Create request and find donors"}
+        </button>
+
+        <p className="mt-2.5 flex items-center justify-center gap-1.5 text-center text-[11px] font-medium leading-5 text-slate-400">
+          <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+          Your request will be created before the donor radar begins.
         </p>
       </div>
-
-      <input className={input} placeholder="Patient name (optional)"
-        value={patientName} onChange={(e) => setPatientName(e.target.value)} />
-      <textarea className={`${input} min-h-24 py-2.5`} placeholder="Notes for donors (optional)"
-        value={notes} onChange={(e) => setNotes(e.target.value)} />
-
-      {error && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>}
-
-      <button type="submit" disabled={loading}
-        className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-red-600 text-base font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:opacity-60">
-        {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-        Create request & find donors
-      </button>
     </form>
+  );
+};
+
+const FormSection = ({
+  step,
+  icon,
+  title,
+  description,
+  children,
+}: {
+  step: string;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) => {
+  return (
+    <section className="overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-[0_16px_48px_rgba(15,23,42,0.06)]">
+      <header className="flex items-start gap-3 border-b border-slate-100 bg-slate-50/70 px-4 py-4 sm:px-5">
+        <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] bg-slate-950 text-white shadow-[0_10px_24px_rgba(15,23,42,0.18)]">
+          {icon}
+
+          <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-[8px] font-black text-white">
+            {step}
+          </span>
+        </div>
+
+        <div className="min-w-0">
+          <h2 className="text-base font-black tracking-[-0.02em] text-slate-950">
+            {title}
+          </h2>
+          <p className="mt-1 text-xs leading-5 text-slate-500">{description}</p>
+        </div>
+      </header>
+
+      <div className="p-4 sm:p-5">{children}</div>
+    </section>
+  );
+};
+
+const FieldLabel = ({
+  label,
+  required = false,
+  optional = false,
+  complete = false,
+}: {
+  label: string;
+  required?: boolean;
+  optional?: boolean;
+  complete?: boolean;
+}) => {
+  return (
+    <div className="flex items-center justify-between gap-3 px-1">
+      <label className="text-sm font-black text-slate-700">
+        {label}
+
+        {required && <span className="ml-1 text-red-500">*</span>}
+      </label>
+
+      {complete ? (
+        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-black uppercase tracking-[0.1em] text-emerald-700">
+          <CheckCircle2 className="h-3 w-3" />
+          Ready
+        </span>
+      ) : optional ? (
+        <span className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-400">
+          Optional
+        </span>
+      ) : null}
+    </div>
   );
 };
