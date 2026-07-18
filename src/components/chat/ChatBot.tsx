@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { HeartPulse, MessageCircle, Send, X } from "lucide-react";
+import { MessageCircle, Send, X } from "lucide-react";
 import clsx from "clsx";
 import { useChat } from "@/hooks/useChat";
 import { ChatMessage } from "@/components/chat/ChatMessage";
@@ -31,7 +32,7 @@ export const ChatBot = () => {
         onClick={() => setOpen(true)}
         className={clsx(
           "fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-red-600 text-white shadow-lg transition-all hover:bg-red-700 hover:shadow-xl",
-          open && "pointer-events-none scale-0 opacity-0"
+          open && "pointer-events-none scale-0 opacity-0",
         )}
       >
         <MessageCircle className="h-6 w-6" />
@@ -49,14 +50,21 @@ export const ChatBot = () => {
       <aside
         className={clsx(
           "fixed inset-y-0 right-0 z-50 flex w-full flex-col bg-white shadow-2xl transition-transform duration-300 md:w-96 md:border-l md:border-slate-200",
-          open ? "translate-x-0" : "translate-x-full"
+          open ? "translate-x-0" : "translate-x-full",
         )}
       >
         {/* Header */}
         <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
-              <HeartPulse className="h-5 w-5 text-red-600" />
+              <Image
+                src="/logo.png"
+                alt="LifeLink"
+                width={44}
+                height={44}
+                priority
+                className="h-full w-full object-cover"
+              />
             </div>
             <div>
               <p className="text-base font-semibold text-slate-900">
