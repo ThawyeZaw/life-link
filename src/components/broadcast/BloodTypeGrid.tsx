@@ -1,10 +1,10 @@
 "use client";
 
 // src/components/broadcast/BloodTypeGrid.tsx
-// LifeLink — Blood type multi-select
+// LifeLink — Accessible blood type multi-select
 // Team Vertex Red
 
-import { Check, Droplets } from "lucide-react";
+import { Check, Droplets, RotateCcw } from "lucide-react";
 import { clsx } from "clsx";
 
 import type { BloodType } from "@/utils/supabase";
@@ -23,67 +23,97 @@ const ALL_TYPES: BloodType[] = [
 interface BloodTypeGridProps {
   selected: BloodType[];
   onChange: (types: BloodType[]) => void;
+  disabled?: boolean;
+  error?: string;
+  className?: string;
 }
 
-export function BloodTypeGrid({ selected, onChange }: BloodTypeGridProps) {
+export function BloodTypeGrid({
+  selected,
+  onChange,
+  disabled = false,
+  error,
+  className,
+}: BloodTypeGridProps) {
+  const selectedSet = new Set(selected);
+  const allSelected = selected.length === ALL_TYPES.length;
+  const hasSelection = selected.length > 0;
+
   const toggleBloodType = (type: BloodType) => {
-    const isSelected = selected.includes(type);
+    if (disabled) {
+      return;
+    }
 
-    onChange(
-      isSelected
-        ? selected.filter((item) => item !== type)
-        : [...selected, type],
-    );
+    const nextTypes = selectedSet.has(type)
+      ? selected.filter((item) => item !== type)
+      : ALL_TYPES.filter((item) => selectedSet.has(item) || item === type);
+
+    onChange(nextTypes);
   };
 
-  const selectAll = () => {
-    onChange(ALL_TYPES);
+  const toggleAll = () => {
+    if (disabled) {
+      return;
+    }
+
+    onChange(allSelected ? [] : ALL_TYPES);
   };
 
-  const clearAll = () => {
+  const clearSelection = () => {
+    if (disabled || !hasSelection) {
+      return;
+    }
+
     onChange([]);
   };
 
   return (
-    <div>
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-black text-[#0D1933]">
-            Blood compatibility
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            Select one or more required blood groups.
-          </p>
+    <div className={className}>
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-500">
+              <Droplets className="h-4 w-4" />
+            </span>
+
+            <div>
+              <h3 className="text-sm font-black text-[#0D1933]">
+                Required blood types
+              </h3>
+
+              <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
+                Select every blood group needed for this request.
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={clearAll}
-            disabled={selected.length === 0}
-            className="rounded-xl px-3 py-2 text-[11px] font-bold text-slate-500 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Clear
-          </button>
-
-          <button
-            type="button"
-            onClick={selectAll}
-            disabled={selected.length === ALL_TYPES.length}
-            className="rounded-xl bg-[#0D1933] px-3 py-2 text-[11px] font-bold text-white transition hover:bg-[#18294F] disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Select all
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={toggleAll}
+          disabled={disabled}
+          className={clsx(
+            "inline-flex h-9 shrink-0 items-center justify-center rounded-xl px-3",
+            "text-[10px] font-black transition",
+            "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-slate-100",
+            allSelected
+              ? "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              : "bg-[#0D1933] text-white hover:bg-[#18294F]",
+            disabled && "cursor-not-allowed opacity-50",
+          )}
+        >
+          {allSelected ? "Clear all" : "Select all"}
+        </button>
       </div>
 
       <div
         role="group"
-        aria-label="Select required blood types"
-        className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+        aria-label="Required blood types"
+        aria-describedby={error ? "blood-type-error" : undefined}
+        className="grid grid-cols-4 gap-2 sm:gap-3"
       >
         {ALL_TYPES.map((type) => {
-          const isSelected = selected.includes(type);
+          const isSelected = selectedSet.has(type);
 
           return (
             <button
@@ -93,60 +123,49 @@ export function BloodTypeGrid({ selected, onChange }: BloodTypeGridProps) {
                 .replace("-", "negative")}`}
               type="button"
               aria-pressed={isSelected}
+              aria-label={`${type} blood type${isSelected ? ", selected" : ""}`}
+              disabled={disabled}
               onClick={() => toggleBloodType(type)}
               className={clsx(
-                "group relative min-h-24 overflow-hidden rounded-[1.35rem] border-2 p-4 text-left transition-all duration-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-100",
+                "group relative flex min-h-[76px] flex-col items-center justify-center",
+                "overflow-hidden rounded-2xl border p-2 text-center",
+                "transition duration-200",
+                "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-100",
                 isSelected
-                  ? "border-red-500 bg-gradient-to-br from-red-500 to-red-600 text-white shadow-[0_14px_30px_rgba(239,68,68,0.22)]"
-                  : "border-slate-200 bg-white text-[#0D1933] hover:-translate-y-0.5 hover:border-red-200 hover:shadow-[0_12px_30px_rgba(15,23,42,0.07)]",
+                  ? "border-red-500 bg-red-500 text-white shadow-[0_10px_24px_rgba(239,68,68,0.2)]"
+                  : "border-slate-200 bg-white text-[#0D1933] hover:-translate-y-0.5 hover:border-red-200 hover:bg-red-50/40",
+                disabled && "cursor-not-allowed opacity-50",
               )}
             >
-              <div
+              <span
                 aria-hidden="true"
                 className={clsx(
-                  "absolute -right-5 -top-5 h-20 w-20 rounded-full blur-2xl transition",
-                  isSelected ? "bg-white/20" : "bg-red-100/60",
+                  "absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full border transition",
+                  isSelected
+                    ? "border-white/25 bg-white text-red-500"
+                    : "border-slate-200 bg-white text-transparent",
                 )}
-              />
+              >
+                <Check className="h-3 w-3" strokeWidth={3} />
+              </span>
 
-              <div className="relative flex h-full flex-col justify-between">
-                <div className="flex items-start justify-between gap-3">
-                  <div
-                    className={clsx(
-                      "flex h-9 w-9 items-center justify-center rounded-xl transition",
-                      isSelected
-                        ? "bg-white/15 text-white"
-                        : "bg-red-50 text-red-500",
-                    )}
-                  >
-                    <Droplets className="h-4 w-4" />
-                  </div>
+              <span
+                className={clsx(
+                  "text-xl font-black tracking-tight sm:text-2xl",
+                  isSelected ? "text-white" : "text-[#0D1933]",
+                )}
+              >
+                {type}
+              </span>
 
-                  <span
-                    className={clsx(
-                      "flex h-6 w-6 items-center justify-center rounded-full border transition",
-                      isSelected
-                        ? "border-white/30 bg-white text-red-500"
-                        : "border-slate-200 bg-white text-transparent",
-                    )}
-                  >
-                    <Check className="h-3.5 w-3.5" strokeWidth={3} />
-                  </span>
-                </div>
-
-                <div className="mt-4">
-                  <p className="text-xl font-black tracking-tight">{type}</p>
-
-                  <p
-                    className={clsx(
-                      "mt-1 text-[10px] font-bold uppercase tracking-[0.12em]",
-                      isSelected ? "text-red-100" : "text-slate-400",
-                    )}
-                  >
-                    {isSelected ? "Selected" : "Tap to select"}
-                  </p>
-                </div>
-              </div>
+              <span
+                className={clsx(
+                  "mt-1 text-[8px] font-black uppercase tracking-[0.08em]",
+                  isSelected ? "text-red-100" : "text-slate-400",
+                )}
+              >
+                {isSelected ? "Selected" : "Select"}
+              </span>
             </button>
           );
         })}
@@ -154,42 +173,73 @@ export function BloodTypeGrid({ selected, onChange }: BloodTypeGridProps) {
 
       <div
         className={clsx(
-          "mt-4 flex items-center justify-between rounded-2xl border px-4 py-3 transition",
-          selected.length > 0
-            ? "border-red-100 bg-red-50"
-            : "border-slate-200 bg-slate-50",
+          "mt-4 flex min-h-12 items-center justify-between gap-3 rounded-2xl border px-3.5 py-3",
+          "transition",
+          error
+            ? "border-red-200 bg-red-50"
+            : hasSelection
+              ? "border-emerald-100 bg-emerald-50/70"
+              : "border-slate-200 bg-slate-50",
         )}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-3">
           <span
             className={clsx(
-              "flex h-7 min-w-7 items-center justify-center rounded-lg px-2 text-xs font-black",
-              selected.length > 0
+              "flex h-8 min-w-8 shrink-0 items-center justify-center rounded-xl px-2",
+              "text-xs font-black",
+              error
                 ? "bg-red-500 text-white"
-                : "bg-slate-200 text-slate-500",
+                : hasSelection
+                  ? "bg-emerald-500 text-white"
+                  : "bg-slate-200 text-slate-500",
             )}
           >
             {selected.length}
           </span>
 
-          <p
-            className={clsx(
-              "text-xs font-bold",
-              selected.length > 0 ? "text-red-700" : "text-slate-500",
+          <div className="min-w-0">
+            <p
+              className={clsx(
+                "truncate text-xs font-black",
+                error
+                  ? "text-red-700"
+                  : hasSelection
+                    ? "text-emerald-800"
+                    : "text-slate-500",
+              )}
+            >
+              {error
+                ? error
+                : selected.length === 0
+                  ? "Choose at least one blood type"
+                  : selected.length === 1
+                    ? "1 blood type selected"
+                    : `${selected.length} blood types selected`}
+            </p>
+
+            {hasSelection && !error && (
+              <p className="mt-0.5 truncate text-[10px] font-semibold text-emerald-600">
+                {selected.join(" · ")}
+              </p>
             )}
-          >
-            {selected.length === 0
-              ? "No blood types selected"
-              : selected.length === 1
-                ? "1 blood type selected"
-                : `${selected.length} blood types selected`}
-          </p>
+          </div>
         </div>
 
-        {selected.length > 0 && (
-          <p className="max-w-[45%] truncate text-right text-[10px] font-bold text-red-500">
-            {selected.join(" · ")}
-          </p>
+        {hasSelection && !allSelected && (
+          <button
+            type="button"
+            onClick={clearSelection}
+            disabled={disabled}
+            aria-label="Clear selected blood types"
+            className={clsx(
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
+              "text-slate-400 transition hover:bg-white hover:text-red-500",
+              "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-100",
+              disabled && "cursor-not-allowed opacity-50",
+            )}
+          >
+            <RotateCcw className="h-4 w-4" />
+          </button>
         )}
       </div>
     </div>

@@ -1,5 +1,5 @@
 // ============================================================================
-// Vertex Red — Database Types
+// LifeLink — Database Types
 // Thaw Ye Zaw — Backend / Database Domain
 // ============================================================================
 
@@ -24,6 +24,15 @@ export type VerificationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 /** Notification event types */
 export type NotificationType = 'MATCH_FOUND' | 'REQUEST_UPDATE' | 'NEW_REQUEST' | 'CHAT_MESSAGE';
 
+/** Account types */
+export type AccountType = 'user' | 'organisation';
+
+/** Organisation categories */
+export type OrgType = 'hospital' | 'ngo' | 'blood_bank' | 'community' | 'other';
+
+/** Organisation member roles */
+export type OrgRole = 'admin' | 'member';
+
 // ----------------------------------------------------------------------------
 // Table Row Types
 // ----------------------------------------------------------------------------
@@ -34,6 +43,7 @@ export interface Profile {
   phone: string | null;
   blood_type: BloodType | null;
   township: string | null;
+  account_type: AccountType;
   date_of_birth: string | null;
   weight_kg: number | null;
   medical_conditions: string[];
@@ -61,10 +71,41 @@ export interface Hospital {
   updated_at: string;
 }
 
+export interface Township {
+  id: string;
+  name: string;
+  region: string;
+  lat: number;
+  lng: number;
+}
+
+export interface Organization {
+  id: string;
+  name: string;
+  org_type: OrgType;
+  township: string | null;
+  address: string | null;
+  phone: string | null;
+  is_verified: boolean;
+  owner_id: string;
+  hospital_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrganizationMember {
+  id: string;
+  org_id: string;
+  user_id: string;
+  role: OrgRole;
+  joined_at: string;
+}
+
 export interface Request {
   id: string;
   requester_id: string;
   hospital_id: string | null;
+  organization_id?: string | null;
   request_type: RequestType;
   blood_type: BloodType | null;
   supply_details: string | null;

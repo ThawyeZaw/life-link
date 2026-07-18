@@ -26,6 +26,15 @@ import {
   matchesRoute,
 } from "@/utils/session";
 
+// Route prefixes that require a logged-in user
+const PROTECTED_PREFIXES = [
+  "/broadcast",
+  "/command",
+  "/donors",
+  "/profile",
+  "/org",
+];
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 

@@ -1,4 +1,4 @@
-﻿-- Vertex Red -- Re-seed hospitals with Myanmar names
+-- LifeLink -- Re-seed hospitals with Myanmar names
 -- Total: 196 hospitals
 
 DELETE FROM public.hospitals;

@@ -22,6 +22,7 @@ export const MOCK_PROFILE: Profile = {
   phone: "09-4200-11234",
   blood_type: "O-",
   township: "Sanchaung",
+  account_type: "user",
   date_of_birth: "1995-03-12",
   weight_kg: 68,
   medical_conditions: [],

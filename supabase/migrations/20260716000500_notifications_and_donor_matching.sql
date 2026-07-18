@@ -1,5 +1,5 @@
 -- ============================================================================
--- Vertex Red — Migration 00006: Donor Matching Function + Notification Triggers
+-- LifeLink — Migration 00006: Donor Matching Function + Notification Triggers
 -- Thaw Ye Zaw — Backend / Database Domain
 -- ============================================================================
 

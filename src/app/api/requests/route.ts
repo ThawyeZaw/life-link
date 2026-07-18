@@ -1,5 +1,5 @@
 // ============================================================================
-// Vertex Red — /api/requests
+// LifeLink — /api/requests
 // Thaw Ye Zaw — Backend / Database Domain
 // ============================================================================
 
@@ -82,6 +82,7 @@ export async function POST(request: Request) {
       lat,
       lng,
       hospitalId,
+      organizationId,
       expiresAt,
     } = body;
 
@@ -92,19 +93,39 @@ export async function POST(request: Request) {
       );
     }
 
+    // Fill location from the receiving facility so reverse matching
+    // (donor -> hospitals) can rank this request by distance.
+    let requestLat = lat ?? null;
+    let requestLng = lng ?? null;
+    let requestTownship = township ?? null;
+
+    if (hospitalId && (requestLat == null || requestLng == null)) {
+      const { data: hospital } = await supabase
+        .from("hospitals")
+        .select("lat, lng, township")
+        .eq("id", hospitalId)
+        .single();
+      if (hospital) {
+        requestLat = requestLat ?? hospital.lat;
+        requestLng = requestLng ?? hospital.lng;
+        requestTownship = requestTownship ?? hospital.township;
+      }
+    }
+
     const { data, error } = await supabase
       .from("requests")
       .insert({
         requester_id: user.id,
         hospital_id: hospitalId || null,
+        organization_id: organizationId || null,
         request_type: requestType,
         blood_type: requestType === "BLOOD" ? bloodType : null,
         supply_details: requestType === "MEDICAL_SUPPLY" ? supplyDetails : null,
         units_needed: unitsNeeded,
         urgency,
-        township,
-        lat,
-        lng,
+        township: requestTownship,
+        lat: requestLat,
+        lng: requestLng,
         expires_at: expiresAt || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       })
       .select()

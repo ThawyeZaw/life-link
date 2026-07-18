@@ -44,8 +44,8 @@ Site-wide glassmorphism bottom navigation — rendered once in the root layout, 
 |---|---|
 | **Frontend** | Next.js (App Router), Tailwind CSS, Lucide React |
 | **Database / Realtime** | Supabase (PostgreSQL + Realtime subscriptions) |
-| **Mapping** | Mapbox GL JS |
-| **Matching Engine** | Python (FastAPI microservice) |
+| **Mapping** | react-map-gl + mapbox-gl |
+| **Matching Engine** | Python FastAPI microservice (separate repo) |
 | **Auth** | Supabase Auth |
 
 ---
@@ -128,20 +128,20 @@ LifeLink uses an **Apple Liquid Glass** visual language with water-inspired soft
 
 ### Prerequisites
 - Node.js 20+
-- npm or yarn
+- npm
 - A [Supabase](https://supabase.com) project
 
-### 1. Clone the repository
+### 1. Clone and install
 
 ```bash
-git clone https://github.com/your-org/vertex-red.git
-cd vertex-red
+cd lifelink
+npm install
 ```
 
-### 2. Install dependencies
+### 2. Configure environment variables
 
 ```bash
-npm install
+cp .env.example .env.local
 ```
 
 ### 3. Configure environment variables
@@ -155,7 +155,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
 
 > **Note:** The project uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (not `NEXT_PUBLIC_SUPABASE_ANON_KEY`). Never commit `.env.local` to version control.
 
-### 4. Run the development server
+### 3. Run the development server
 
 ```bash
 npm run dev

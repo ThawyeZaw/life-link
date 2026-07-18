@@ -1,4 +1,4 @@
-# Vertex Red — Backend API Reference
+# LifeLink — Backend API Reference
 
 > **For frontend AI agents (Thinzar's domain).** Every endpoint, type, and database
 > function available to build the UI against. All endpoints require authentication.

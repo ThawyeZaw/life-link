@@ -1,4 +1,4 @@
--- Vertex Red -- Original 6 specialist/private hospitals with Myanmar names
+-- LifeLink -- Original 6 specialist/private hospitals with Myanmar names
 INSERT INTO public.hospitals (name, name_mya, township, address, phone, lat, lng, verification_status) VALUES
 ('Yangon General Hospital (YGH)', 'ရန်ကုန်ပြည်သူ့ဆေးရုံကြီး', 'Mingalar Taung Nyunt', 'Yangon, Yangon (West) District', '01-256112', 16.7789, 96.1617, 'APPROVED'),
 ('Thukha Yeik Mon Specialist Hospital', 'သုခရိပ်မြုံအထူးကုဆေးရုံ', 'Sanchaung', 'Yangon, Yangon (West) District', '01-512345', 16.8147, 96.1345, 'APPROVED'),

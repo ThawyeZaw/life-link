@@ -5,6 +5,7 @@
 // Team Vertex Red
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   AlertTriangle,
   Clock3,
@@ -168,13 +169,13 @@ export function MapPlaceholder() {
             <Crosshair className="h-4 w-4" />
           </button>
 
-          <button
-            type="button"
-            aria-label="Expand map"
+          <Link
+            href="/map"
+            aria-label="Open interactive map"
             className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:bg-slate-50"
           >
             <Expand className="h-4 w-4" />
-          </button>
+          </Link>
         </div>
       </header>
 

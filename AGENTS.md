@@ -11,7 +11,7 @@
 - **Tailwind CSS** — all styling (utility-first, mobile-first)
 - **Lucide React** — icon library
 - **Supabase** — PostgreSQL database, real-time subscriptions, and auth
-- **Mapbox GL JS** — interactive maps
+- **react-map-gl (Mapbox)** — interactive maps (token required: `NEXT_PUBLIC_MAPBOX_TOKEN`)
 - **Python (FastAPI)** — external matching engine microservice
 
 ---
