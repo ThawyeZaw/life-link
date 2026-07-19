@@ -16,11 +16,15 @@ export interface DonorInviteParams {
 const BOT_TOKEN = () =>
   process.env.TELEGRAM_BOT_TOKEN ?? process.env.TELEGRAM_BOT_TOKEN_DEV ?? "";
 
-const BOT_USERNAME = () =>
-  process.env.TELEGRAM_BOT_USERNAME ?? "LifeLinkBot";
-
 const SITE_URL = () =>
   process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+/** Simple HTML escaping for Telegram parse_mode HTML. */
+const h = (s: string): string =>
+  s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 
 export const sendTelegramInvite = async (
   chatId: string | number,
@@ -32,23 +36,38 @@ export const sendTelegramInvite = async (
   }
 
   const acceptUrl = `${SITE_URL()}/match/${p.token}`;
+  const isHttps = SITE_URL().startsWith("https://");
 
-  const distanceLine =
-    p.distanceKm != null ? `\n📏 Distance: ~${p.distanceKm} km from you` : "";
+  const urgencyEmoji: Record<string, string> = {
+    CRITICAL: "🔴",
+    URGENT: "🟠",
+    STANDARD: "🔵",
+  };
+  const emoji = urgencyEmoji[p.urgency] ?? "🔵";
 
-  const text = `🩸 *Blood Donation Request*
+  const text =
+    `${emoji} <b>Blood Donation Request</b>\n\n` +
+    `<b>${h(p.donorName)}</b>, a patient near you urgently needs ` +
+    `<b>${h(p.bloodType)}</b> blood and you are a compatible donor.\n\n` +
+    `<b>Urgency:</b> ${h(p.urgency)}\n` +
+    `<b>Blood type:</b> ${h(p.bloodType)} · ${p.unitsNeeded} unit(s)\n` +
+    `<b>Donation at:</b> ${h(p.hospitalName)}` +
+    `${p.hospitalTownship ? `, ${h(p.hospitalTownship)}` : ""}` +
+    `${p.distanceKm != null ? `\n<b>Distance:</b> ~${p.distanceKm} km from you` : ""}` +
+    `\n\n` +
+    (isHttps
+      ? `<i>Tap the button below to accept or decline. Your details stay private until you accept.</i>`
+      : `<a href="${acceptUrl}">Respond to this request</a>\n\n<i>Your details stay private until you accept.</i>`);
 
-Hi ${escapeMd(p.donorName)},
-
-A patient near you urgently needs *${escapeMd(p.bloodType)}* blood and you are a compatible donor.
-
-*Urgency:* ${escapeMd(p.urgency)}
-*Blood type:* ${escapeMd(p.bloodType)} · ${p.unitsNeeded} unit(s)
-*Donation at:* ${escapeMd(p.hospitalName)}${p.hospitalTownship ? `, ${escapeMd(p.hospitalTownship)}` : ""}${distanceLine}
-
-[Respond to this request](${acceptUrl})
-
-_Your exact location and contact details are never shared unless you accept. You can decline with no questions asked._`;
+  // Inline keyboard buttons only work with HTTPS URLs (Telegram restriction).
+  // For local dev (HTTP), fall back to a clickable link in the message text.
+  const replyMarkup = isHttps
+    ? {
+        inline_keyboard: [
+          [{ text: "🩸 Respond Now", url: acceptUrl }],
+        ],
+      }
+    : undefined;
 
   const res = await fetch(
     `https://api.telegram.org/bot${token}/sendMessage`,
@@ -58,8 +77,9 @@ _Your exact location and contact details are never shared unless you accept. You
       body: JSON.stringify({
         chat_id: chatId,
         text,
-        parse_mode: "Markdown",
+        parse_mode: "HTML",
         disable_web_page_preview: true,
+        ...(replyMarkup && { reply_markup: replyMarkup }),
       }),
     }
   );
@@ -76,15 +96,12 @@ _Your exact location and contact details are never shared unless you accept. You
 /**
  * Process an incoming Telegram message (text only).
  * Returns the reply text to send back to the user via sendMessage.
- * Supports:
- * - /start — tells the user their chat_id and instructions
- * - A 6-digit code — links the chat_id to their LifeLink account
  */
 export const handleMessage = async (
   msg: {
     chat: { id: number };
     text?: string;
-    from?: { first_name?: string };
+    from?: { first_name?: string; last_name?: string };
   }
 ): Promise<string | null> => {
   const text = msg.text?.trim() ?? "";
@@ -94,20 +111,16 @@ export const handleMessage = async (
   // /start — give the user their chat ID
   if (text === "/start") {
     return (
-      `👋 Hi ${firstName}! Welcome to the *LifeLink* blood donation network.\n\n` +
-      `🔢 Your Telegram chat ID is: \`${chatId}\`\n\n` +
+      `👋 Hi <b>${h(firstName)}</b>! Welcome to the <b>LifeLink</b> blood donation network.\n\n` +
+      `🔢 Your Telegram chat ID is: <code>${chatId}</code>\n\n` +
       `To receive instant blood donation alerts:\n` +
-      `1. Log in to LifeLink at ${SITE_URL()}/dashboard\n` +
-      `2. Go to *Settings* and find *Telegram Notifications*\n` +
-      `3. Enter your chat ID \`${chatId}\` and tap *Connect*\n\n` +
+      `1. Log in to LifeLink\n` +
+      `2. Find <b>Telegram alerts</b> on your dashboard\n` +
+      `3. Enter your chat ID <code>${chatId}</code> and tap <b>Connect</b>\n\n` +
       `Once connected, you'll receive urgent alerts here whenever your blood type is needed.`
     );
   }
 
   // Any other text — just remind them to use /start
-  return `Send /start to get your Telegram chat ID and setup instructions for LifeLink.`;
+  return "Send /start to get your Telegram chat ID and setup instructions for LifeLink.";
 };
-
-/** Telegram MarkdownV2-safe escaping (for bold, italic, links to work correctly). */
-const escapeMd = (s: string): string =>
-  s.replace(/[_*[\]()~`>#+\-=|{}.!\\]/g, "\\$&");

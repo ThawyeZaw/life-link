@@ -305,14 +305,15 @@ export const MatchResponder = ({ token }: { token: string }) => {
             type="button"
             onClick={() => respond("accept")}
             disabled={busy || phone.trim().length < 6}
-            className="group flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 text-base font-black text-white shadow-[0_14px_32px_rgba(220,38,38,0.26)] transition hover:bg-red-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+            className="group flex min-h-[60px] w-full items-center justify-center gap-3 rounded-2xl bg-[linear-gradient(135deg,#dc2626_0%,#b91c1c_100%)] px-6 text-lg font-black text-white shadow-[0_14px_38px_rgba(220,38,38,0.38),0_2px_0_rgba(185,28,28,0.6)_inset] transition-all hover:shadow-[0_18px_42px_rgba(220,38,38,0.48),0_2px_0_rgba(185,28,28,0.6)_inset] hover:translate-y-[-1px] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
           >
             {busy ? (
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
-              <HeartHandshake className="h-5 w-5 transition group-hover:scale-110" />
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/25 text-white text-sm font-black shadow-inner">
+                <HeartHandshake className="h-4 w-4" />
+              </span>
             )}
-
             {busy ? t("match.sendingResponse") : t("match.acceptButton")}
           </button>
 
@@ -320,7 +321,7 @@ export const MatchResponder = ({ token }: { token: string }) => {
             type="button"
             onClick={() => respond("decline")}
             disabled={busy}
-            className="flex min-h-12 w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex min-h-12 w-full items-center justify-center rounded-2xl border-2 border-slate-200 bg-white px-5 text-sm font-bold text-slate-400 transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
           >
             {t("match.declineButton")}
           </button>

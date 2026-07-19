@@ -48,7 +48,7 @@ export const POST = async (req: Request) => {
       body: JSON.stringify({
         chat_id: msg.chat.id,
         text: reply,
-        parse_mode: "Markdown",
+        parse_mode: "HTML",
       }),
     });
 

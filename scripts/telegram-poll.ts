@@ -1,7 +1,7 @@
 /**
  * Local development Telegram bot — polls getUpdates to handle /start.
  *
- * Usage: npx tsx scripts/telegram-poll.ts
+ * Usage: npx tsx scripts/telegram-poll.ts   (or  npm run telegram-poll)
  *
  * REQUIRED env vars (in .env.local):
  *   TELEGRAM_BOT_TOKEN     — from @BotFather
@@ -28,7 +28,10 @@ if (!TOKEN) {
   process.exit(1);
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+const API = `https://api.telegram.org/bot${TOKEN}`;
 
 interface Update {
   update_id: number;
@@ -40,37 +43,73 @@ interface Update {
   };
 }
 
-async function sendMessage(chatId: number, text: string) {
-  await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, text, parse_mode: "Markdown" }),
-  });
+async function sendMessage(chatId: number, text: string, html = false) {
+  try {
+    const res = await fetch(`${API}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, text, parse_mode: html ? "HTML" : undefined }),
+    });
+    const json = await res.json();
+    if (!json.ok) console.error("[sendMessage] failed:", json.description);
+  } catch (e) {
+    console.error("[sendMessage] network error:", e);
+  }
 }
 
 async function poll() {
-  let lastUpdateId = 0;
-  console.log(`🤖 LifeLink Telegram bot polling started (site: ${SITE_URL})`);
-  console.log("   Send /start to the bot to test.\n");
+  // 1. Delete webhook if set (so getUpdates works), but do NOT drop pending updates
+  try {
+    const whRes = await fetch(`${API}/getWebhookInfo`);
+    const wh = await whRes.json();
+    if (wh.result?.url) {
+      console.log("   Removing existing webhook:", wh.result.url);
+      await fetch(`${API}/deleteWebhook`);
+    }
+  } catch {
+    // ok — might already be gone
+  }
 
-  // Warm-up: delete any queued updates
-  await fetch(`https://api.telegram.org/bot${TOKEN}/deleteWebhook?drop_pending_updates=true`);
+  // 2. Find the latest update_id so we resume from here
+  let lastUpdateId = 0;
+  try {
+    const r = await fetch(`${API}/getUpdates?limit=1&offset=-1`);
+    const j = await r.json();
+    if (j.result?.length) {
+      lastUpdateId = j.result[j.result.length - 1].update_id;
+    }
+  } catch {
+    // ok — start from 0
+  }
+
+  console.log(`🤖 LifeLink Telegram bot polling started`);
+  console.log(`   Bot  : ${(await (await fetch(`${API}/getMe`)).json()).result?.username}`);
+  console.log(`   Site : ${SITE_URL}`);
+  console.log(`   Offset: ${lastUpdateId + 1}`);
+  console.log(`   Send /start to the bot to test.\n`);
 
   while (true) {
     try {
       const res = await fetch(
-        `https://api.telegram.org/bot${TOKEN}/getUpdates?offset=${lastUpdateId + 1}&timeout=30`
+        `${API}/getUpdates?offset=${lastUpdateId + 1}&timeout=25`
       );
       const json = await res.json();
 
       if (!json.ok) {
-        console.error("[poll] API error:", json.description);
-        await new Promise((r) => setTimeout(r, 5000));
+        console.error("[poll] getUpdates error:", json.description);
+        await new Promise((r) => setTimeout(r, 3000));
         continue;
       }
 
-      for (const update of (json.result as Update[]) ?? []) {
+      const updates = (json.result as Update[]) ?? [];
+      if (updates.length === 0) {
+        // Timeout reached — no new messages, just loop again
+        continue;
+      }
+
+      for (const update of updates) {
         lastUpdateId = update.update_id;
+
         const msg = update.message;
         if (!msg?.text) continue;
 
@@ -78,17 +117,17 @@ async function poll() {
         const firstName = msg.from?.first_name ?? "there";
         const text = msg.text.trim();
 
-        console.log(`[${chatId}] ${firstName}: ${text}`);
+        console.log(`📩 [chat:${chatId}] ${firstName}: ${text}`);
 
         if (text === "/start") {
           await sendMessage(
             chatId,
-            `👋 Hi ${firstName}! Welcome to the *LifeLink* blood donation network.\n\n` +
-              `🔢 Your Telegram chat ID is: \`${chatId}\`\n\n` +
+            `👋 Hi ${firstName}! Welcome to the LifeLink blood donation network.\n\n` +
+              `🔢 Your Telegram chat ID is: ${chatId}\n\n` +
               `To receive instant blood donation alerts:\n` +
               `1. Log in to LifeLink at ${SITE_URL}/dashboard\n` +
-              `2. Find *Telegram alerts* on your dashboard\n` +
-              `3. Enter your chat ID \`${chatId}\` and tap *Connect*\n\n` +
+              `2. Find Telegram alerts on your dashboard\n` +
+              `3. Enter your chat ID ${chatId} and tap Connect\n\n` +
               `Once connected, you'll receive urgent alerts here whenever your blood type is needed.`
           );
         } else {
@@ -99,7 +138,8 @@ async function poll() {
         }
       }
     } catch (e) {
-      console.error("[poll] error:", e);
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("[poll] network/error:", msg);
       await new Promise((r) => setTimeout(r, 3000));
     }
   }
