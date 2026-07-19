@@ -15,12 +15,12 @@ interface DonorInviteParams {
 }
 
 const siteUrl = () => {
-  // Vercel auto-provides this (e.g. "lifelink-henna.vercel.app")
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  // Custom domain set explicitly
   if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
-  // Local dev fallback
-  return "http://localhost:3000";
+  // Production domain — auto-detects on Vercel, hardcoded as safety net
+  if (process.env.VERCEL_URL && process.env.VERCEL_URL.includes("vercel.app")) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return "https://lifelink-henna.vercel.app";
 };
 
 export const sendDonorInviteEmail = async (p: DonorInviteParams) => {
