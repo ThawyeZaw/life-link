@@ -12,12 +12,15 @@ import {
   XCircle,
 } from "lucide-react";
 
+import { useT } from "@/i18n";
 import { InviteSummary, type InviteRequest } from "./InviteSummary";
 
 const input =
   "min-h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-base text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-red-400 focus:bg-white focus:ring-4 focus:ring-red-100";
 
 export const MatchResponder = ({ token }: { token: string }) => {
+  const { t } = useT();
+
   const [data, setData] = useState<{
     match: {
       status: string;
@@ -81,12 +84,11 @@ export const MatchResponder = ({ token }: { token: string }) => {
         </div>
 
         <h1 className="relative mt-5 text-xl font-black tracking-[-0.025em] text-slate-950">
-          Invitation unavailable
+          {t("match.invitationUnavailable")}
         </h1>
 
         <p className="relative mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-          This invitation link is invalid, has expired, or is no longer
-          available.
+          {t("match.invitationUnavailableDesc")}
         </p>
       </div>
     );
@@ -102,10 +104,10 @@ export const MatchResponder = ({ token }: { token: string }) => {
 
           <div>
             <p className="text-sm font-black text-slate-950">
-              Checking your invitation
+              {t("match.checkingInvitation")}
             </p>
             <p className="mt-0.5 text-xs text-slate-500">
-              Loading the emergency request details
+              {t("match.loadingRequest")}
             </p>
           </div>
         </div>
@@ -151,20 +153,20 @@ export const MatchResponder = ({ token }: { token: string }) => {
           {accepted && (
             <span className="relative mt-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-white/80 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.13em] text-emerald-700">
               <Sparkles className="h-3.5 w-3.5" />
-              Response confirmed
+              {t("match.responseConfirmed")}
             </span>
           )}
 
           <h2 className="relative mx-auto mt-4 max-w-xl text-2xl font-black tracking-[-0.035em] text-slate-950 sm:text-3xl">
             {accepted
-              ? "Thank you — you may save a life today"
-              : "Your response has been recorded"}
+              ? t("match.thankYou")
+              : t("match.responseRecorded")}
           </h2>
 
           <p className="relative mx-auto mt-3 max-w-lg text-sm leading-6 text-slate-500 sm:text-base">
             {accepted
-              ? "Your contact details were shared with the requester. They or the hospital will contact you to arrange the donation."
-              : "No problem. Thank you for being part of the donor network. You may be alerted again when someone nearby needs your help."}
+              ? t("match.thankYouDesc")
+              : t("match.responseRecordedDesc")}
           </p>
 
           {accepted && (
@@ -175,10 +177,10 @@ export const MatchResponder = ({ token }: { token: string }) => {
 
               <div>
                 <p className="text-sm font-black text-slate-900">
-                  Keep your phone nearby
+                  {t("match.keepPhoneNearby")}
                 </p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
-                  The requester or hospital may call you with the next steps.
+                  {t("match.keepPhoneDesc")}
                 </p>
               </div>
             </div>
@@ -210,16 +212,15 @@ export const MatchResponder = ({ token }: { token: string }) => {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-70" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
           </span>
-          Blood match found
+          {t("match.bloodMatchFound")}
         </span>
 
         <h1 className="relative mt-4 text-2xl font-black tracking-[-0.035em] text-slate-950 sm:text-3xl">
-          Hi {data.match.donor_first_name}, you&apos;re a match
+          {t("match.matchTitle", { name: data.match.donor_first_name })}
         </h1>
 
         <p className="relative mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-500 sm:text-base">
-          Someone near you needs your blood type. Review the request below and
-          let them know whether you can help.
+          {t("match.matchDesc")}
         </p>
       </section>
 
@@ -238,15 +239,15 @@ export const MatchResponder = ({ token }: { token: string }) => {
 
           <div className="min-w-0">
             <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
-              Contact information
+              {t("match.contactInfo")}
             </p>
 
             <h2 className="mt-1 text-lg font-black tracking-[-0.025em] text-slate-950">
-              How can the requester reach you?
+              {t("match.howReachYou")}
             </h2>
 
             <p className="mt-1 text-sm leading-5 text-slate-500">
-              Your details are only shared after you accept.
+              {t("match.contactInfoDesc")}
             </p>
           </div>
         </div>
@@ -254,13 +255,13 @@ export const MatchResponder = ({ token }: { token: string }) => {
         <div className="relative mt-5 space-y-3">
           <label className="block">
             <span className="mb-2 block text-xs font-black uppercase tracking-[0.11em] text-slate-500">
-              Phone number
+              {t("match.phoneNumber")}
             </span>
 
             <input
               className={input}
               type="tel"
-              placeholder="09 xxx xxx xxx"
+              placeholder={t("match.phonePlaceholder")}
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
               autoComplete="tel"
@@ -269,15 +270,15 @@ export const MatchResponder = ({ token }: { token: string }) => {
 
           <label className="block">
             <span className="mb-2 block text-xs font-black uppercase tracking-[0.11em] text-slate-500">
-              Availability note
+              {t("match.availabilityNote")}
               <span className="ml-1 font-medium normal-case tracking-normal text-slate-400">
-                optional
+                {t("match.availabilityOptional")}
               </span>
             </span>
 
             <textarea
               className={`${input} min-h-24 resize-y py-3`}
-              placeholder="For example: I can arrive after 4 PM."
+              placeholder={t("match.availabilityPlaceholder")}
               value={note}
               onChange={(event) => setNote(event.target.value)}
             />
@@ -286,8 +287,7 @@ export const MatchResponder = ({ token }: { token: string }) => {
           <div className="flex items-start gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-xs leading-5 text-emerald-800">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
             <span>
-              Your phone number is never public. It is shared only with this
-              requester after you accept.
+              {t("match.phonePrivacy")}
             </span>
           </div>
 
@@ -313,7 +313,7 @@ export const MatchResponder = ({ token }: { token: string }) => {
               <HeartHandshake className="h-5 w-5 transition group-hover:scale-110" />
             )}
 
-            {busy ? "Sending response..." : "Accept — I’ll donate"}
+            {busy ? t("match.sendingResponse") : t("match.acceptButton")}
           </button>
 
           <button
@@ -322,12 +322,12 @@ export const MatchResponder = ({ token }: { token: string }) => {
             disabled={busy}
             className="flex min-h-12 w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            I can&apos;t donate this time
+            {t("match.declineButton")}
           </button>
 
           <p className="flex items-center justify-center gap-1.5 pt-1 text-center text-[11px] font-medium text-slate-400">
             <LockKeyhole className="h-3.5 w-3.5" />
-            Secure donor response
+            {t("match.secureDonorResponse")}
           </p>
         </div>
       </section>

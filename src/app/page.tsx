@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 import Image from "next/image";
@@ -8,63 +10,63 @@ import {
   Check,
   Clock3,
   HeartHandshake,
-  HeartPulse,
   ShieldCheck,
   Sparkles,
   Users,
   Zap,
 } from "lucide-react";
 
+import { useT } from "@/i18n";
+
 import { Hero } from "@/components/landing/Hero";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 
-const organizationFeatures = [
-  {
-    icon: Users,
-    title: "Centralized member network",
-    description:
-      "Bring donors, volunteers, coordinators, and community leaders together in one organized workspace.",
-  },
-  {
-    icon: Zap,
-    title: "Faster emergency coordination",
-    description:
-      "Reduce delays by sharing urgent blood requests through a clear and focused response flow.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Privacy-first participation",
-    description:
-      "Keep donor information protected while still enabling trusted and effective coordination.",
-  },
-];
-
-const trustItems = [
-  "Create an organization in minutes",
-  "Invite members using a single code",
-  "Coordinate urgent requests together",
-  "Keep communication simple and focused",
-];
-
-const impactStats = [
-  {
-    value: "24/7",
-    label: "Emergency readiness",
-    icon: Clock3,
-  },
-  {
-    value: "1 Code",
-    label: "Simple member access",
-    icon: BadgeCheck,
-  },
-  {
-    value: "1 Network",
-    label: "Connected donor community",
-    icon: HeartHandshake,
-  },
-];
-
 const HomePage = () => {
+  const { t } = useT();
+
+  const organizationFeatures = [
+    {
+      icon: Users,
+      title: t("home.organization.feature1Title"),
+      description: t("home.organization.feature1Desc"),
+    },
+    {
+      icon: Zap,
+      title: t("home.organization.feature2Title"),
+      description: t("home.organization.feature2Desc"),
+    },
+    {
+      icon: ShieldCheck,
+      title: t("home.organization.feature3Title"),
+      description: t("home.organization.feature3Desc"),
+    },
+  ];
+
+  const trustItems = [
+    t("home.organization.trust1"),
+    t("home.organization.trust2"),
+    t("home.organization.trust3"),
+    t("home.organization.trust4"),
+  ];
+
+  const impactStats = [
+    {
+      value: t("home.organization.stat1Value"),
+      label: t("home.organization.stat1Label"),
+      icon: Clock3,
+    },
+    {
+      value: t("home.organization.stat2Value"),
+      label: t("home.organization.stat2Label"),
+      icon: BadgeCheck,
+    },
+    {
+      value: t("home.organization.stat3Value"),
+      label: t("home.organization.stat3Label"),
+      icon: HeartHandshake,
+    },
+  ];
+
   return (
     <main className="min-h-screen overflow-x-hidden bg-white text-slate-950">
       <Hero />
@@ -89,23 +91,21 @@ const HomePage = () => {
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-500/15">
                   <Sparkles className="h-3.5 w-3.5 text-red-400" />
                 </span>
-                Built for donor communities
+                {t("home.organization.badge")}
               </div>
 
               <h2 className="mt-8 max-w-3xl text-4xl font-black leading-[1.05] tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl xl:text-7xl">
-                Turn your community into a
+                {t("home.organization.title")}
                 <span className="relative ml-3 inline-block">
                   <span className="relative z-10 text-red-400">
-                    life-saving network.
+                    {t("home.organization.titleHighlight")}
                   </span>
                   <span className="absolute bottom-1 left-0 h-3 w-full rounded-full bg-red-500/10 blur-sm" />
                 </span>
               </h2>
 
               <p className="mt-7 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-                Create an organization, invite your members with one code, and
-                coordinate urgent blood requests through one trusted digital
-                space.
+                {t("home.organization.description")}
               </p>
 
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -113,7 +113,7 @@ const HomePage = () => {
                   href="/signup"
                   className="group inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-white px-7 text-base font-bold text-slate-950 shadow-[0_18px_60px_rgba(255,255,255,0.14)] transition duration-300 hover:-translate-y-1 hover:bg-slate-100"
                 >
-                  Create an organization
+                  {t("home.organization.createOrg")}
                   <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
 
@@ -122,7 +122,7 @@ const HomePage = () => {
                   className="group inline-flex min-h-14 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-7 text-base font-semibold text-white backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-white/30 hover:bg-white/[0.1]"
                 >
                   <Building2 className="h-4 w-4 text-emerald-300" />
-                  Join with invite code
+                  {t("home.organization.joinWithCode")}
                 </Link>
               </div>
 
@@ -149,10 +149,10 @@ const HomePage = () => {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-                        Community workspace
+                        {t("home.organization.workspace")}
                       </p>
                       <h3 className="mt-2 text-2xl font-black tracking-tight text-white">
-                        LifeLink Organization
+                        {t("home.organization.orgTitle")}
                       </h3>
                     </div>
 
@@ -186,15 +186,15 @@ const HomePage = () => {
                     <div className="flex items-center justify-between gap-4">
                       <div>
                         <p className="text-xs font-bold uppercase tracking-[0.18em] text-red-300">
-                          Active emergency
+                          {t("home.organization.activeEmergency")}
                         </p>
                         <p className="mt-2 text-lg font-bold text-white">
-                          O− blood urgently required
+                          {t("home.organization.emergencyExample")}
                         </p>
                       </div>
 
                       <span className="rounded-full border border-red-400/20 bg-red-500/15 px-3 py-1.5 text-xs font-bold text-red-300">
-                        Critical
+                        {t("home.organization.criticalBadge")}
                       </span>
                     </div>
 
@@ -203,7 +203,7 @@ const HomePage = () => {
                     </div>
 
                     <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
-                      <span>Matching eligible donors</span>
+                      <span>{t("home.organization.matchingDonors")}</span>
                       <span className="font-bold text-white">72%</span>
                     </div>
                   </div>
@@ -216,10 +216,10 @@ const HomePage = () => {
 
                       <div>
                         <p className="text-sm font-bold text-white">
-                          Privacy protected
+                          {t("home.organization.privacyCardTitle")}
                         </p>
                         <p className="mt-1 text-xs text-slate-400">
-                          Donor details remain secure
+                          {t("home.organization.privacyCardDesc")}
                         </p>
                       </div>
                     </div>
@@ -262,16 +262,15 @@ const HomePage = () => {
             <div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
               <div className="max-w-2xl">
                 <p className="text-sm font-bold uppercase tracking-[0.2em] text-red-300">
-                  Start your network
+                  {t("home.organization.ctaBadge")}
                 </p>
 
                 <h3 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                  A stronger donor community starts with one connection.
+                  {t("home.organization.ctaTitle")}
                 </h3>
 
                 <p className="mt-4 text-base leading-7 text-slate-300">
-                  Create your LifeLink organization and give your community a
-                  better way to respond when every second matters.
+                  {t("home.organization.ctaDesc")}
                 </p>
               </div>
 
@@ -279,7 +278,7 @@ const HomePage = () => {
                 href="/signup"
                 className="group inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-full bg-red-500 px-7 text-base font-bold text-white shadow-[0_18px_45px_rgba(239,68,68,0.25)] transition duration-300 hover:-translate-y-1 hover:bg-red-400"
               >
-                Get started
+                {t("home.organization.ctaButton")}
                 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             </div>
@@ -307,16 +306,16 @@ const HomePage = () => {
             </div>
 
             <p className="mt-2 text-center text-sm text-slate-500 sm:text-left">
-              Built for Myanmar. Every drop counts.
+              {t("home.footer.tagline")}
             </p>
           </div>
 
           <div className="text-center sm:text-right">
             <p className="text-sm font-medium text-slate-600">
-              Connecting communities when every second matters.
+              {t("home.footer.subtitle")}
             </p>
             <p className="mt-1 text-xs text-slate-400">
-              © 2026 LifeLink. Team Vertex Red.
+              {t("home.footer.copyright")}
             </p>
           </div>
         </div>

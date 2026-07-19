@@ -83,9 +83,9 @@ export const MyRequests = ({
 
   const activeRequests = requests.filter(
     (request) =>
-      request.status !== "CLOSED" &&
       request.status !== "CANCELLED" &&
-      request.status !== "FULFILLED",
+      request.status !== "COMPLETED" &&
+      request.status !== "EXPIRED",
   ).length;
 
   return (
@@ -177,9 +177,9 @@ export const MyRequests = ({
             const urgency = URGENCY_META[request.urgency];
 
             const isActive =
-              request.status !== "CLOSED" &&
               request.status !== "CANCELLED" &&
-              request.status !== "FULFILLED";
+              request.status !== "COMPLETED" &&
+              request.status !== "EXPIRED";
 
             return (
               <Link

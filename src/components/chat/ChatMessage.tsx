@@ -1,7 +1,10 @@
+"use client";
+
 import { HeartPulse } from "lucide-react";
 
 import Image from "next/image";
 import clsx from "clsx";
+import { useT } from "@/i18n";
 import type { ChatMessageData } from "@/hooks/useChat";
 
 interface ChatMessageProps {
@@ -9,6 +12,7 @@ interface ChatMessageProps {
 }
 
 export const ChatMessage = ({ message }: ChatMessageProps) => {
+  const { t } = useT();
   const isUser = message.role === "user";
 
   return (
@@ -17,7 +21,7 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100">
           <Image
             src="/logo.png"
-            alt="LifeLink"
+            alt={t("common.logoAlt")}
             width={44}
             height={44}
             priority

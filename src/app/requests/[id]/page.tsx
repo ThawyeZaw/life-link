@@ -1,4 +1,9 @@
+"use client";
+
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { notFound } from "next/navigation";
 import {
   Activity,
   ArrowLeft,
@@ -6,31 +11,62 @@ import {
   LockKeyhole,
   ShieldCheck,
 } from "lucide-react";
-import { notFound } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/server";
+import { useT } from "@/i18n";
+import { createClient } from "@/lib/supabase/client";
 import { RequestFlow } from "@/components/radar/RequestFlow";
 import type { BloodRequest } from "@/lib/types";
 
-const RequestPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = await params;
-  const supabase = await createClient();
+const RequestPage = ({ params }: { params: Promise<{ id: string }> }) => {
+  const { t } = useT();
+  const { id } = use(params);
 
-  const { data: request } = await supabase
-    .from("requests")
-    .select(
-      "*, hospitals(id, name, name_mya, township, address, phone, lat, lng)",
-    )
-    .eq("id", id)
-    .single();
+  const [request, setRequest] = useState<BloodRequest | null>(null);
+  const [hasMatches, setHasMatches] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const supabase = createClient();
+
+      const { data: req } = await supabase
+        .from("requests")
+        .select(
+          "*, hospitals(id, name, name_mya, township, address, phone, lat, lng)",
+        )
+        .eq("id", id)
+        .single();
+
+      if (!req) {
+        setLoading(false);
+        return;
+      }
+
+      setRequest(req as BloodRequest);
+
+      const { data: matches } = await supabase.rpc("get_request_matches", {
+        p_request_id: id,
+      });
+
+      setHasMatches((matches?.length ?? 0) > 0);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <main className="relative flex min-h-screen items-center justify-center bg-[linear-gradient(180deg,#fff7f7_0%,#ffffff_48%,#f8fafc_100%)]">
+        <div className="flex items-center gap-3 text-slate-500">
+          <span className="h-2 w-2 animate-ping rounded-full bg-red-500" />
+          <span className="text-sm font-semibold">{t("request.detail.searching")}...</span>
+        </div>
+      </main>
+    );
+  }
 
   if (!request) notFound();
-
-  const { data: matches } = await supabase.rpc("get_request_matches", {
-    p_request_id: id,
-  });
-
-  const hasMatches = (matches?.length ?? 0) > 0;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#fff7f7_0%,#ffffff_48%,#f8fafc_100%)]">
@@ -47,33 +83,39 @@ const RequestPage = async ({ params }: { params: Promise<{ id: string }> }) => {
             className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-red-200 hover:text-red-600"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back
+            {t("request.detail.back")}
           </Link>
 
           <div className="hidden items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/80 px-4 py-2 text-sm font-semibold text-emerald-700 sm:flex">
             <ShieldCheck className="h-4 w-4" />
-            Privacy protected
+            {t("request.detail.privacyProtected")}
           </div>
         </div>
 
         <section className="mx-auto mt-6 max-w-2xl">
           <div className="mb-6 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500 text-white shadow-[0_16px_40px_rgba(239,68,68,0.28)]">
-              <HeartPulse className="h-7 w-7" />
+              <Image
+                src="/logo.png"
+                alt="LifeLink"
+                width={44}
+                height={44}
+                priority
+                className="h-full rounded-2xl w-full object-cover"
+              />
             </div>
 
             <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-red-200 bg-white/80 px-4 py-2 text-sm font-bold text-red-600 shadow-sm backdrop-blur-xl">
               <Activity className="h-4 w-4" />
-              Live emergency request
+              {t("request.detail.liveEmergency")}
             </div>
 
             <h1 className="mt-5 text-3xl font-black tracking-[-0.04em] text-slate-950 sm:text-4xl">
-              Respond when it matters most
+              {t("request.detail.headline")}
             </h1>
 
             <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
-              Review the request, check your eligibility, and continue through
-              the secure response flow.
+              {t("request.detail.description")}
             </p>
           </div>
 
@@ -86,11 +128,10 @@ const RequestPage = async ({ params }: { params: Promise<{ id: string }> }) => {
 
                 <div>
                   <p className="text-sm font-bold text-slate-950">
-                    Consent-first sharing
+                    {t("request.detail.consentFirst")}
                   </p>
                   <p className="mt-1 text-xs leading-5 text-slate-500">
-                    Your location and contact details stay private until you
-                    choose to continue.
+                    {t("request.detail.consentDesc")}
                   </p>
                 </div>
               </div>
@@ -105,13 +146,13 @@ const RequestPage = async ({ params }: { params: Promise<{ id: string }> }) => {
                 <div>
                   <p className="text-sm font-bold text-slate-950">
                     {hasMatches
-                      ? "Matching is active"
-                      : "Searching for matches"}
+                      ? t("request.detail.matchingActive")
+                      : t("request.detail.searching")}
                   </p>
                   <p className="mt-1 text-xs leading-5 text-slate-500">
                     {hasMatches
-                      ? "Compatible donors have already been identified."
-                      : "LifeLink is still checking eligible donors for this request."}
+                      ? t("request.detail.matchingActiveDesc")
+                      : t("request.detail.searchingDesc")}
                   </p>
                 </div>
               </div>
@@ -128,8 +169,7 @@ const RequestPage = async ({ params }: { params: Promise<{ id: string }> }) => {
           </div>
 
           <p className="mt-5 text-center text-xs leading-5 text-slate-400">
-            LifeLink does not publicly expose donor addresses or exact
-            locations.
+            {t("request.detail.privacyFooter")}
           </p>
         </section>
       </div>

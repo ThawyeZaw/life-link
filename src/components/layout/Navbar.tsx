@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
+import { LanguageSwitcher } from "@/i18n";
 
 export const Navbar = () => {
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
@@ -121,6 +122,8 @@ export const Navbar = () => {
               </DesktopNavLink>
             )}
           </div>
+
+          <LanguageSwitcher />
 
           {loggedIn === null ? (
             <div className="flex min-h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-500">

@@ -1,11 +1,15 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ArrowLeft, HeartPulse, LockKeyhole, ShieldCheck } from "lucide-react";
 
 import { LoginForm } from "@/components/auth/LoginForm";
+import { useT } from "@/i18n";
 
 const LoginPage = () => {
+  const { t } = useT();
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#fff8f8_0%,#ffffff_55%,#f8fafc_100%)] px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
       <div className="mx-auto max-w-6xl">
@@ -15,12 +19,12 @@ const LoginPage = () => {
             className="inline-flex min-h-10 items-center gap-2 rounded-full px-2 text-sm font-semibold text-slate-600 transition hover:bg-white hover:text-red-600"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back
+            {t("common.back")}
           </Link>
 
           <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-700 sm:text-sm">
             <ShieldCheck className="h-4 w-4" />
-            Secure login
+            {t("login.secureLogin")}
           </div>
         </div>
 
@@ -45,23 +49,22 @@ const LoginPage = () => {
                     Life<span className="text-red-400">Link</span>
                   </p>
                   <p className="text-xs text-slate-400">
-                    Emergency blood network
+                    {t("login.emergencyNetwork")}
                   </p>
                 </div>
               </div>
 
               <div className="mt-20">
                 <p className="text-sm font-bold uppercase tracking-[0.2em] text-red-300">
-                  Welcome back
+                  {t("login.welcomeBack")}
                 </p>
 
                 <h1 className="mt-5 max-w-xl text-5xl font-black leading-[1.03] tracking-[-0.05em]">
-                  Continue making every response count.
+                  {t("login.headline")}
                 </h1>
 
                 <p className="mt-6 max-w-lg text-base leading-8 text-slate-300">
-                  Access your donor profile, emergency requests, hospital
-                  workspace, and community activity from one secure account.
+                  {t("login.description")}
                 </p>
               </div>
             </div>
@@ -74,17 +77,17 @@ const LoginPage = () => {
 
                 <div>
                   <p className="text-sm font-bold">
-                    Your account stays private
+                    {t("login.accountPrivate")}
                   </p>
                   <p className="mt-1 text-xs leading-5 text-slate-400">
-                    Personal donor details remain protected.
+                    {t("login.accountPrivateDesc")}
                   </p>
                 </div>
               </div>
 
               <div className="rounded-2xl border border-red-400/15 bg-red-500/10 p-4">
                 <p className="text-sm font-bold text-red-200">
-                  Emergency alerts remain focused and consent-first.
+                  {t("login.emergencyAlert")}
                 </p>
               </div>
             </div>
@@ -110,16 +113,15 @@ const LoginPage = () => {
                 </div>
 
                 <p className="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-red-500 sm:text-sm">
-                  Secure access
+                  {t("login.secureAccess")}
                 </p>
 
                 <h2 className="mt-3 text-3xl font-black tracking-[-0.04em] text-slate-950 sm:text-4xl">
-                  Welcome back
+                  {t("login.loginTitle")}
                 </h2>
 
                 <p className="mt-3 max-w-sm text-sm leading-6 text-slate-600 sm:text-base">
-                  Log in to continue managing requests, donor activity, and
-                  life-saving responses.
+                  {t("login.loginDesc")}
                 </p>
               </div>
 
@@ -136,19 +138,19 @@ const LoginPage = () => {
               </div>
 
               <p className="mt-6 text-center text-sm text-slate-500">
-                New to LifeLink?{" "}
+                {t("login.newToLifelink")}{" "}
                 <Link
                   href="/signup"
                   className="font-bold text-red-600 transition hover:text-red-700 hover:underline"
                 >
-                  Create an account
+                  {t("login.createAccount")}
                 </Link>
               </p>
 
               <div className="mt-4 flex items-start justify-center gap-2 text-center text-xs leading-5 text-slate-400">
                 <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
                 <span>
-                  Your account and personal information remain protected.
+                  {t("login.protectedInfo")}
                 </span>
               </div>
             </div>

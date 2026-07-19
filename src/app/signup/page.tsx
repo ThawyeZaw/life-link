@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -10,8 +12,10 @@ import {
 } from "lucide-react";
 
 import { SignupForm } from "@/components/auth/SignupForm";
+import { useT } from "@/i18n";
 
 const SignupPage = () => {
+  const { t } = useT();
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#fff8f8_0%,#ffffff_55%,#f8fafc_100%)] px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
@@ -21,12 +25,12 @@ const SignupPage = () => {
             className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-red-500"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to home
+            {t("common.backToHome")}
           </Link>
 
           <div className="hidden items-center gap-2 text-sm font-semibold text-slate-500 sm:flex">
             <ShieldCheck className="h-4 w-4 text-emerald-500" />
-            Privacy-first signup
+            {t("signup.privacyFirst")}
           </div>
         </div>
 
@@ -55,7 +59,7 @@ const SignupPage = () => {
                     Life<span className="text-red-400">Link</span>
                   </p>
                   <p className="text-xs text-slate-400">
-                    Emergency blood network
+                    {t("login.emergencyNetwork")}
                   </p>
                 </div>
               </div>
@@ -63,17 +67,15 @@ const SignupPage = () => {
               <div className="mt-20">
                 <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-white backdrop-blur">
                   <Sparkles className="h-4 w-4 text-red-400" />
-                  Join a life-saving network
+                  {t("signup.joinNetwork")}
                 </div>
 
                 <h1 className="mt-7 max-w-xl text-5xl font-black leading-[1.03] tracking-[-0.05em]">
-                  Your response could become someone&apos;s next heartbeat.
+                  {t("signup.headline")}
                 </h1>
 
                 <p className="mt-6 max-w-lg text-base leading-8 text-slate-300">
-                  Create one secure profile and receive alerts when someone
-                  nearby needs your blood type. Your location and contact
-                  information remain private until you choose to respond.
+                  {t("signup.description")}
                 </p>
               </div>
             </div>
@@ -85,9 +87,9 @@ const SignupPage = () => {
                 </div>
 
                 <div>
-                  <p className="text-sm font-bold">Your details stay private</p>
+                  <p className="text-sm font-bold">{t("signup.detailsPrivate")}</p>
                   <p className="mt-1 text-xs leading-5 text-slate-400">
-                    No public phone number, home address, or exact map pin.
+                    {t("signup.detailsPrivateDesc")}
                   </p>
                 </div>
               </div>
@@ -98,9 +100,9 @@ const SignupPage = () => {
                 </div>
 
                 <div>
-                  <p className="text-sm font-bold">Trusted emergency alerts</p>
+                  <p className="text-sm font-bold">{t("signup.trustedAlerts")}</p>
                   <p className="mt-1 text-xs leading-5 text-slate-400">
-                    Get notified through a focused donor-response workflow.
+                    {t("signup.trustedAlertsDesc")}
                   </p>
                 </div>
               </div>
@@ -127,16 +129,15 @@ const SignupPage = () => {
                 </div>
 
                 <p className="mt-6 text-sm font-bold uppercase tracking-[0.2em] text-red-500">
-                  Create your account
+                  {t("signup.createAccount")}
                 </p>
 
                 <h2 className="mt-3 text-3xl font-black tracking-[-0.035em] text-slate-950 sm:text-4xl">
-                  Join LifeLink
+                  {t("signup.joinLifelink")}
                 </h2>
 
                 <p className="mt-4 max-w-lg text-sm leading-7 text-slate-600 sm:text-base">
-                  Set up your donor or organization profile and become part of a
-                  faster, safer emergency blood network.
+                  {t("signup.formDesc")}
                 </p>
               </div>
 
@@ -146,19 +147,18 @@ const SignupPage = () => {
 
               <div className="mt-6 flex flex-col items-center gap-3 text-center">
                 <p className="text-sm text-slate-500">
-                  Already have an account?{" "}
+                  {t("signup.alreadyHave")}{" "}
                   <Link
                     href="/login"
                     className="font-bold text-red-600 transition hover:text-red-700 hover:underline"
                   >
-                    Log in
+                    {t("signup.logIn")}
                   </Link>
                 </p>
 
                 <p className="flex items-center gap-2 text-xs text-slate-400">
                   <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                  Your information is protected and never shared without
-                  consent.
+                  {t("common.shieldCheck")}
                 </p>
               </div>
             </div>

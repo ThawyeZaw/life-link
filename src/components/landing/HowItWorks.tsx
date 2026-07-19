@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ArrowDown,
   CheckCircle2,
@@ -10,38 +12,42 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-const STEPS = [
-  {
-    icon: Radar,
-    number: "01",
-    title: "Radar finds donors",
-    text: "Create a request and LifeLink scans for compatible donors near the hospital without revealing their identities.",
-    status: "Scanning",
-  },
-  {
-    icon: Mail,
-    number: "02",
-    title: "Donors receive an alert",
-    text: "Compatible donors receive the hospital, blood type, urgency, and distance while their personal data stays protected.",
-    status: "Alert sent",
-  },
-  {
-    icon: Link2,
-    number: "03",
-    title: "Consent-based connection",
-    text: "Contact details are shared only after a donor accepts the invitation and chooses to help.",
-    status: "Permission",
-  },
-  {
-    icon: HeartHandshake,
-    number: "04",
-    title: "Donate and complete",
-    text: "The donor visits the hospital, completes the donation, and the request is updated across the LifeLink network.",
-    status: "Completed",
-  },
-];
+import { useT } from "@/i18n";
 
 export const HowItWorks = () => {
+  const { t } = useT();
+
+  const STEPS = [
+    {
+      icon: Radar,
+      number: "01",
+      title: t("home.howItWorks.step1.title"),
+      text: t("home.howItWorks.step1.text"),
+      status: t("home.howItWorks.step1.status"),
+    },
+    {
+      icon: Mail,
+      number: "02",
+      title: t("home.howItWorks.step2.title"),
+      text: t("home.howItWorks.step2.text"),
+      status: t("home.howItWorks.step2.status"),
+    },
+    {
+      icon: Link2,
+      number: "03",
+      title: t("home.howItWorks.step3.title"),
+      text: t("home.howItWorks.step3.text"),
+      status: t("home.howItWorks.step3.status"),
+    },
+    {
+      icon: HeartHandshake,
+      number: "04",
+      title: t("home.howItWorks.step4.title"),
+      text: t("home.howItWorks.step4.text"),
+      status: t("home.howItWorks.step4.status"),
+    },
+  ];
+
   return (
     <section className="relative overflow-hidden bg-white px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
       <div className="pointer-events-none absolute inset-0">
@@ -62,33 +68,32 @@ export const HowItWorks = () => {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
             </span>
-            Emergency response flow
+            {t("home.howItWorks.badge")}
           </div>
 
           <h2 className="mt-6 text-3xl font-black tracking-[-0.04em] text-slate-950 sm:text-4xl lg:text-5xl">
-            How LifeLink works
+            {t("home.howItWorks.title")}
           </h2>
 
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
-            From emergency request to completed donation, every step is fast,
-            private, and based on donor consent.
+            {t("home.howItWorks.description")}
           </p>
         </div>
 
         <div className="mx-auto mt-8 flex max-w-2xl flex-wrap items-center justify-center gap-2">
           <SecurityBadge
             icon={<ShieldCheck className="h-3.5 w-3.5" />}
-            text="Privacy protected"
+            text={t("home.howItWorks.privacyProtected")}
           />
 
           <SecurityBadge
             icon={<LockKeyhole className="h-3.5 w-3.5" />}
-            text="Consent required"
+            text={t("home.howItWorks.consentRequired")}
           />
 
           <SecurityBadge
             icon={<Radio className="h-3.5 w-3.5" />}
-            text="Live updates"
+            text={t("home.howItWorks.liveUpdates")}
           />
         </div>
 
@@ -129,19 +134,18 @@ export const HowItWorks = () => {
 
               <div className="min-w-0">
                 <p className="text-sm font-black text-slate-950">
-                  One connected emergency network
+                  {t("home.howItWorks.connectedNetwork")}
                 </p>
 
                 <p className="mt-1 text-xs leading-5 text-slate-600 sm:text-sm">
-                  Hospitals find help faster while donors remain in full control
-                  of their privacy and participation.
+                  {t("home.howItWorks.connectedNetworkDesc")}
                 </p>
               </div>
             </div>
 
             <span className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-emerald-200 bg-white px-3 py-2 text-xs font-bold text-emerald-700 shadow-sm">
               <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.7)]" />
-              Network ready
+              {t("home.howItWorks.networkReady")}
             </span>
           </div>
         </div>
@@ -150,7 +154,14 @@ export const HowItWorks = () => {
   );
 };
 
-type Step = (typeof STEPS)[number];
+type Step = {
+  icon: typeof Radar;
+  number: string;
+  title: string;
+  text: string;
+  status: string;
+};
+
 const ProcessStep = ({
   step,
   index,
@@ -262,7 +273,7 @@ const ProcessStep = ({
 
             <span
               className={`relative inline-flex h-2 w-2 rounded-full ${
-                index === STEPS.length - 1 ? "bg-emerald-500" : "bg-red-500"
+                index === STEPS_LENGTH - 1 ? "bg-emerald-500" : "bg-red-500"
               }`}
             />
           </span>
@@ -275,6 +286,8 @@ const ProcessStep = ({
     </article>
   );
 };
+
+const STEPS_LENGTH = 4;
 
 const SecurityBadge = ({
   icon,

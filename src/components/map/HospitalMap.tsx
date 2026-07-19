@@ -13,6 +13,7 @@ import {
   Phone,
 } from "lucide-react";
 
+import { useT } from "@/i18n";
 import type { Hospital } from "@/lib/types";
 import type { MapRequest } from "./MapExplorer";
 
@@ -27,6 +28,7 @@ export const HospitalMap = ({
   selected: Hospital | null;
   onSelect: (hospital: Hospital | null) => void;
 }) => {
+  const { t } = useT();
   const selectedRequests = selected
     ? (requestsByHospital.get(selected.id) ?? [])
     : [];
@@ -178,12 +180,12 @@ export const HospitalMap = ({
                           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
                           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
                         </span>
-                        Hospital
+                        {t("map.hospitalLabel")}
                       </span>
 
                       {selectedRequests.length > 0 && (
                         <span className="rounded-full border border-red-200 bg-red-50 px-2 py-1 text-[9px] font-black uppercase tracking-[0.1em] text-red-700">
-                          {selectedRequests.length} active
+                          {selectedRequests.length} {t("map.active")}
                         </span>
                       )}
                     </div>
@@ -237,7 +239,7 @@ export const HospitalMap = ({
                     <div className="flex items-center justify-between gap-3">
                       <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-slate-500">
                         <Activity className="h-3.5 w-3.5 text-red-500" />
-                        Emergency needs
+                        {t("map.emergencyNeeds")}
                       </p>
 
                       <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[0.1em] text-red-600">
@@ -245,7 +247,7 @@ export const HospitalMap = ({
                           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-70" />
                           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-500" />
                         </span>
-                        Live
+                        {t("map.live")}
                       </span>
                     </div>
 

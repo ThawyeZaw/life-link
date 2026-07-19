@@ -16,6 +16,7 @@ import {
   UserRound,
 } from "lucide-react";
 
+import { useT } from "@/i18n";
 import { createClient } from "@/lib/supabase/client";
 import { BloodTypePicker } from "@/components/auth/BloodTypePicker";
 import { HospitalPicker } from "./HospitalPicker";
@@ -26,6 +27,7 @@ const fieldClassName =
   "min-h-12 w-full rounded-[18px] border border-slate-200 bg-white px-4 text-base font-medium text-slate-900 shadow-sm outline-none transition placeholder:font-normal placeholder:text-slate-400 hover:border-slate-300 focus:border-red-400 focus:ring-4 focus:ring-red-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400";
 
 export const NewRequestForm = () => {
+  const { t } = useT();
   const router = useRouter();
 
   const [bloodType, setBloodType] = useState("");
@@ -51,12 +53,12 @@ export const NewRequestForm = () => {
     event.preventDefault();
 
     if (!bloodType) {
-      setError("Please select the blood type needed.");
+      setError(t("request.form.errorBloodType"));
       return;
     }
 
     if (!hospital) {
-      setError("Please select the hospital where donation happens.");
+      setError(t("request.form.errorHospital"));
       return;
     }
 
@@ -82,7 +84,7 @@ export const NewRequestForm = () => {
       .single();
 
     if (requestError || !data) {
-      setError(requestError?.message ?? "Could not create request");
+      setError(requestError?.message ?? t("request.form.errorCreate"));
       setLoading(false);
       return;
     }
@@ -114,16 +116,15 @@ export const NewRequestForm = () => {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-70" />
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-500" />
                 </span>
-                Emergency request
+                {t("request.form.emergencyRequest")}
               </span>
 
               <h1 className="mt-2 text-xl font-black tracking-[-0.035em] text-slate-950 sm:text-2xl">
-                Create a blood request
+                {t("request.form.createBloodRequest")}
               </h1>
 
               <p className="mt-1 text-sm leading-6 text-slate-500">
-                Enter the medical requirement and locate compatible donors near
-                the selected hospital.
+                {t("request.form.formDesc")}
               </p>
             </div>
           </div>
@@ -138,7 +139,7 @@ export const NewRequestForm = () => {
                 {completedSteps}/3
               </p>
               <p className="mt-1 text-[9px] font-black uppercase tracking-[0.1em] text-slate-400">
-                Required steps
+                {t("request.form.requiredSteps")}
               </p>
             </div>
           </div>
@@ -148,13 +149,13 @@ export const NewRequestForm = () => {
       <FormSection
         step="01"
         icon={<Droplets className="h-5 w-5" />}
-        title="Blood requirement"
-        description="Choose the required blood group and number of units."
+        title={t("request.form.step1Title")}
+        description={t("request.form.step1Desc")}
       >
         <div className="space-y-5">
           <div className="space-y-2">
             <FieldLabel
-              label="Blood type needed"
+              label={t("request.form.bloodTypeNeeded")}
               required
               complete={Boolean(bloodType)}
             />
@@ -169,7 +170,7 @@ export const NewRequestForm = () => {
           </div>
 
           <div className="space-y-2">
-            <FieldLabel label="Units needed" required complete={units > 0} />
+            <FieldLabel label={t("request.form.unitsNeeded")} required complete={units > 0} />
 
             <div className="flex items-center justify-between gap-4 rounded-[22px] border border-slate-200 bg-slate-50 p-3">
               <button
@@ -187,7 +188,7 @@ export const NewRequestForm = () => {
                   {units}
                 </p>
                 <p className="mt-1 text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
-                  {units === 1 ? "Blood unit" : "Blood units"}
+                  {units === 1 ? t("request.form.bloodUnit") : t("request.form.bloodUnits")}
                 </p>
               </div>
 
@@ -203,7 +204,7 @@ export const NewRequestForm = () => {
             </div>
 
             <p className="px-1 text-xs leading-5 text-slate-400">
-              You can request between 1 and 10 units.
+              {t("request.form.unitsRange")}
             </p>
           </div>
         </div>
@@ -212,11 +213,11 @@ export const NewRequestForm = () => {
       <FormSection
         step="02"
         icon={<AlertCircle className="h-5 w-5" />}
-        title="Emergency priority"
-        description="Set how urgently donors should be contacted."
+        title={t("request.form.step2Title")}
+        description={t("request.form.step2Desc")}
       >
         <div className="space-y-2">
-          <FieldLabel label="Urgency level" required complete />
+          <FieldLabel label={t("request.form.urgencyLevel")} required complete />
 
           <UrgencyPicker value={urgency} onChange={setUrgency} />
         </div>
@@ -225,11 +226,11 @@ export const NewRequestForm = () => {
       <FormSection
         step="03"
         icon={<Building2 className="h-5 w-5" />}
-        title="Donation hospital"
-        description="Choose the hospital where the donor should arrive."
+        title={t("request.form.step3Title")}
+        description={t("request.form.step3Desc")}
       >
         <div className="space-y-3">
-          <FieldLabel label="Hospital" required complete={Boolean(hospital)} />
+          <FieldLabel label={t("request.form.hospital")} required complete={Boolean(hospital)} />
 
           <HospitalPicker
             selected={hospital}
@@ -242,8 +243,7 @@ export const NewRequestForm = () => {
           <div className="flex items-start gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-xs leading-5 text-emerald-800">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
             <p>
-              Donors only see the selected hospital location. The patient&apos;s
-              home address and private information are never shared.
+              {t("request.form.hospitalPrivacy")}
             </p>
           </div>
         </div>
@@ -252,19 +252,19 @@ export const NewRequestForm = () => {
       <FormSection
         step="04"
         icon={<FileText className="h-5 w-5" />}
-        title="Additional details"
-        description="Add optional information to help the hospital and donors coordinate."
+        title={t("request.form.step4Title")}
+        description={t("request.form.step4Desc")}
       >
         <div className="space-y-4">
           <div className="space-y-2">
-            <FieldLabel label="Patient name" optional />
+            <FieldLabel label={t("request.form.patientName")} optional />
 
             <div className="relative">
               <UserRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
 
               <input
                 className={`${fieldClassName} pl-11`}
-                placeholder="Enter patient name"
+                placeholder={t("request.form.patientNamePlaceholder")}
                 value={patientName}
                 onChange={(event) => setPatientName(event.target.value)}
                 disabled={loading}
@@ -273,14 +273,14 @@ export const NewRequestForm = () => {
           </div>
 
           <div className="space-y-2">
-            <FieldLabel label="Notes for donors" optional />
+            <FieldLabel label={t("request.form.notesForDonors")} optional />
 
             <div className="relative">
               <FileText className="pointer-events-none absolute left-4 top-4 h-4 w-4 text-slate-400" />
 
               <textarea
                 className={`${fieldClassName} min-h-28 resize-y py-3 pl-11 leading-6`}
-                placeholder="Add arrival instructions, timing, entrance details, or other helpful information"
+                placeholder={t("request.form.notesPlaceholder")}
                 value={notes}
                 onChange={(event) => setNotes(event.target.value)}
                 disabled={loading}
@@ -289,7 +289,7 @@ export const NewRequestForm = () => {
 
             <div className="flex justify-end px-1">
               <span className="text-[10px] font-bold text-slate-400">
-                {notes.length} characters
+                {notes.length} {t("request.form.characters")}
               </span>
             </div>
           </div>
@@ -307,7 +307,7 @@ export const NewRequestForm = () => {
 
           <div>
             <p className="font-black text-red-800">
-              Please check the request details
+              {t("request.form.errorCheckDetails")}
             </p>
             <p className="mt-0.5">{error}</p>
           </div>
@@ -327,13 +327,13 @@ export const NewRequestForm = () => {
           )}
 
           {loading
-            ? "Creating emergency request..."
-            : "Create request and find donors"}
+            ? t("request.form.creating")
+            : t("request.form.submitButton")}
         </button>
 
         <p className="mt-2.5 flex items-center justify-center gap-1.5 text-center text-[11px] font-medium leading-5 text-slate-400">
           <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
-          Your request will be created before the donor radar begins.
+          {t("request.form.submitNote")}
         </p>
       </div>
     </form>
@@ -354,7 +354,7 @@ const FormSection = ({
   children: React.ReactNode;
 }) => {
   return (
-    <section className="overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-[0_16px_48px_rgba(15,23,42,0.06)]">
+    <section className="overflow-visible rounded-[30px] border border-slate-200 bg-white shadow-[0_16px_48px_rgba(15,23,42,0.06)]">
       <header className="flex items-start gap-3 border-b border-slate-100 bg-slate-50/70 px-4 py-4 sm:px-5">
         <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] bg-slate-950 text-white shadow-[0_10px_24px_rgba(15,23,42,0.18)]">
           {icon}
@@ -388,6 +388,8 @@ const FieldLabel = ({
   optional?: boolean;
   complete?: boolean;
 }) => {
+  const { t } = useT();
+
   return (
     <div className="flex items-center justify-between gap-3 px-1">
       <label className="text-sm font-black text-slate-700">
@@ -399,11 +401,11 @@ const FieldLabel = ({
       {complete ? (
         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-black uppercase tracking-[0.1em] text-emerald-700">
           <CheckCircle2 className="h-3 w-3" />
-          Ready
+          {t("request.form.ready")}
         </span>
       ) : optional ? (
         <span className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-400">
-          Optional
+          {t("request.form.optional")}
         </span>
       ) : null}
     </div>

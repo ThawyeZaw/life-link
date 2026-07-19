@@ -4,10 +4,12 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { MessageCircle, Send, X } from "lucide-react";
 import clsx from "clsx";
+import { useT } from "@/i18n";
 import { useChat } from "@/hooks/useChat";
 import { ChatMessage } from "@/components/chat/ChatMessage";
 
 export const ChatBot = () => {
+  const { t } = useT();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const { messages, isLoading, sendMessage } = useChat();
@@ -28,7 +30,7 @@ export const ChatBot = () => {
       {/* Floating toggle button */}
       <button
         type="button"
-        aria-label="Open LifeLink Assistant"
+        aria-label={t("chat.openAriaLabel")}
         onClick={() => setOpen(true)}
         className={clsx(
           "fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-red-600 text-white shadow-lg transition-all hover:bg-red-700 hover:shadow-xl",
@@ -59,7 +61,7 @@ export const ChatBot = () => {
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
               <Image
                 src="/logo.png"
-                alt="LifeLink"
+                alt={t("common.logoAlt")}
                 width={44}
                 height={44}
                 priority
@@ -68,10 +70,10 @@ export const ChatBot = () => {
             </div>
             <div>
               <p className="text-base font-semibold text-slate-900">
-                LifeLink Assistant
+                {t("chat.assistantName")}
               </p>
               <p className="text-sm text-slate-500">
-                Blood donation · First aid · Help
+                {t("chat.assistantTagline")}
               </p>
             </div>
           </div>
@@ -109,12 +111,12 @@ export const ChatBot = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about blood donation, first aid…"
+            placeholder={t("chat.placeholder")}
             className="min-h-11 flex-1 rounded-full border border-slate-300 bg-slate-50 px-4 text-base text-slate-900 outline-none placeholder:text-slate-400 focus:border-red-400 focus:ring-2 focus:ring-red-100"
           />
           <button
             type="submit"
-            aria-label="Send message"
+            aria-label={t("chat.sendAriaLabel")}
             disabled={isLoading || !input.trim()}
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-red-600 text-white transition-colors hover:bg-red-700 disabled:opacity-40"
           >

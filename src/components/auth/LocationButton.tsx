@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { LocateFixed, Check } from "lucide-react";
+import { useT } from "@/i18n";
 
 export const LocationButton = ({
   onLocation,
 }: {
   onLocation: (lat: number, lng: number) => void;
 }) => {
+  const { t } = useT();
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
 
   const locate = () => {
@@ -35,15 +37,15 @@ export const LocationButton = ({
       >
         {state === "done" ? <Check className="h-4 w-4" /> : <LocateFixed className="h-4 w-4" />}
         {state === "loading"
-          ? "Locating…"
+          ? t("signup.locating")
           : state === "done"
-            ? "Location saved privately"
-            : "Share my location (optional)"}
+            ? t("signup.locationSaved")
+            : t("signup.shareLocation")}
       </button>
       <p className="mt-1.5 text-xs text-slate-500">
         {state === "error"
-          ? "Could not get location — township will be used instead."
-          : "Used only to compute distance. Never shown to anyone."}
+          ? t("signup.locationError")
+          : t("signup.locationHint")}
       </p>
     </div>
   );

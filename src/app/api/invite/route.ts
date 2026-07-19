@@ -3,12 +3,14 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getManagedRequest } from "@/lib/authz";
 import { sendDonorInviteEmail } from "@/lib/email";
+import { sendTelegramInvite } from "@/lib/telegram";
 
 /**
  * POST /api/invite
  * Body: { requestId: string, donorIds: string[] }
- * Creates match records (with secret tokens) and emails each donor an
- * accept/decline link. Donor contact info is never returned to the client.
+ * Creates match records (with secret tokens), then notifies each donor
+ * via email AND/OR Telegram (if linked). Donor contact info is never
+ * returned to the client.
  */
 export const POST = async (req: Request) => {
   const { requestId, donorIds } = await req.json();
@@ -55,20 +57,23 @@ export const POST = async (req: Request) => {
     return NextResponse.json({ error: upsertError.message }, { status: 500 });
   }
 
-  // Fetch tokens + donor emails for the invited set
+  // Fetch tokens + donor contact info for the invited set
   const { data: matches } = await admin
     .from("matches")
-    .select("donor_id, token, status, profiles:donor_id(full_name, email)")
+    .select("donor_id, token, status, profiles:donor_id(full_name, email, telegram_chat_id)")
     .eq("request_id", requestId)
     .in("donor_id", donorIds)
     .eq("status", "INVITED");
 
   const hospital = request.hospitals;
+
+  type DonorInfo = { full_name: string; email: string; telegram_chat_id: number | null };
+
+  // Send both email and Telegram for each donor (whichever channels are available)
   const results = await Promise.allSettled(
     (matches ?? []).map((m) => {
-      const donor = m.profiles as unknown as { full_name: string; email: string };
-      return sendDonorInviteEmail({
-        to: donor.email,
+      const donor = m.profiles as unknown as DonorInfo;
+      const payload = {
         donorName: donor.full_name,
         bloodType: request.blood_type,
         urgency: request.urgency,
@@ -77,35 +82,82 @@ export const POST = async (req: Request) => {
         hospitalTownship: hospital?.township ?? null,
         distanceKm: distanceOf.get(m.donor_id) ?? null,
         token: m.token,
-      });
+      };
+
+      const delivers: Promise<{ channel: string; sent: boolean; reason?: string }>[] = [];
+
+      // Email (always attempted)
+      delivers.push(
+        sendDonorInviteEmail({ to: donor.email, ...payload }).then((r) => ({
+          channel: "email",
+          ...r,
+        }))
+      );
+
+      // Telegram (only if donor linked their account)
+      if (donor.telegram_chat_id) {
+        delivers.push(
+          sendTelegramInvite(donor.telegram_chat_id, { to: donor.email, ...payload }).then(
+            (r) => ({
+              channel: "telegram",
+              ...r,
+            })
+          )
+        );
+      }
+
+      return Promise.allSettled(delivers);
     })
   );
 
-  const emailed = results.filter(
-    (r) => r.status === "fulfilled" && r.value.sent
-  ).length;
+  // Flatten nested results: match-level allSettled → individual channel results
+  let emailed = 0;
+  let telegrammed = 0;
 
-  // Collect failure reasons for diagnostic visibility
-  const failures: { email: string; reason: string }[] = [];
-  for (let i = 0; i < results.length; i++) {
-    const r = results[i];
-    const m = matches![i];
-    const donor = m.profiles as unknown as { full_name: string; email: string };
-    if (r.status === "rejected") {
-      failures.push({ email: donor.email, reason: "Promise rejected" });
-    } else if (r.status === "fulfilled" && !r.value.sent) {
-      failures.push({ email: donor.email, reason: r.value.reason });
+  for (const matchResult of results) {
+    if (matchResult.status !== "fulfilled") continue;
+    for (const cr of matchResult.value) {
+      if (cr.status === "fulfilled") {
+        if (cr.value.channel === "email" && cr.value.sent) emailed++;
+        if (cr.value.channel === "telegram" && cr.value.sent) telegrammed++;
+      }
     }
   }
 
-  // Log a summary so server-side logs are actionable
+  // Collect failures
+  const failures: { donor: string; channel: string; reason: string }[] = [];
+  for (let i = 0; i < results.length; i++) {
+    const matchResult = results[i];
+    const m = matches![i];
+    const donor = m.profiles as unknown as DonorInfo;
+    if (matchResult.status === "rejected") {
+      failures.push({ donor: donor.email, channel: "both", reason: "Promise rejected" });
+    } else {
+      for (const cr of matchResult.value) {
+        if (cr.status === "rejected") {
+          failures.push({ donor: donor.email, channel: "unknown", reason: "Promise rejected" });
+        } else if (!cr.value.sent) {
+          failures.push({
+            donor: donor.email,
+            channel: cr.value.channel,
+            reason: cr.value.reason ?? "unknown",
+          });
+        }
+      }
+    }
+  }
+
   if (failures.length > 0) {
-    console.error(`[invite] ${failures.length}/${results.length} email(s) failed:`, failures);
+    console.error(
+      `[invite] ${failures.length} notification(s) failed:`,
+      failures
+    );
   }
 
   return NextResponse.json({
     invited: matches?.length ?? 0,
     emailed,
+    telegrammed: telegrammed > 0 ? telegrammed : undefined,
     failures: failures.length > 0 ? failures : undefined,
   });
 };

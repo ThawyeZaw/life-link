@@ -9,6 +9,7 @@ import {
   Radio,
 } from "lucide-react";
 
+import { useT } from "@/i18n";
 import { StatusPill } from "@/components/ui/StatusPill";
 import { URGENCY_META } from "@/lib/blood";
 import type { Urgency } from "@/lib/types";
@@ -35,10 +36,15 @@ export const InviteSummary = ({
   request: InviteRequest;
   distanceKm: number | null;
 }) => {
+  const { t } = useT();
   const urgency = URGENCY_META[request.urgency];
 
   const hospitalLocation =
     request.hospitals.address ?? request.hospitals.township ?? "Yangon";
+
+  const patientSuffix = request.patient_name
+    ? ` for ${request.patient_name}`
+    : "";
 
   return (
     <section className="relative min-w-0 overflow-hidden rounded-[28px] border border-red-200 bg-[linear-gradient(135deg,#fff1f2_0%,#ffffff_55%,#f8fafc_100%)] p-4 shadow-[0_20px_60px_rgba(239,68,68,0.10)] sm:p-5">
@@ -69,7 +75,7 @@ export const InviteSummary = ({
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-white/80 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-red-700">
                   <Radio className="h-3 w-3" />
-                  Live invitation
+                  {t("match.liveInvitation")}
                 </span>
 
                 <StatusPill
@@ -79,11 +85,11 @@ export const InviteSummary = ({
               </div>
 
               <h2 className="mt-2 text-lg font-black tracking-[-0.025em] text-slate-950 sm:text-xl">
-                Blood donation needed
+                {t("match.bloodDonationNeeded")}
               </h2>
 
               <p className="mt-1 text-xs font-medium text-slate-500">
-                Review the request and hospital details below.
+                {t("match.reviewDetails")}
               </p>
             </div>
           </div>
@@ -94,7 +100,7 @@ export const InviteSummary = ({
             <div className="flex items-center gap-2 text-slate-400">
               <Droplets className="h-4 w-4 text-red-500" />
               <span className="text-[10px] font-black uppercase tracking-[0.12em]">
-                Blood type
+                {t("match.bloodType")}
               </span>
             </div>
 
@@ -107,7 +113,7 @@ export const InviteSummary = ({
             <div className="flex items-center gap-2 text-slate-400">
               <Droplets className="h-4 w-4 text-red-500" />
               <span className="text-[10px] font-black uppercase tracking-[0.12em]">
-                Units needed
+                {t("match.unitsNeeded")}
               </span>
             </div>
 
@@ -122,10 +128,11 @@ export const InviteSummary = ({
           <Droplets className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
 
           <span className="min-w-0">
-            {request.units_needed} unit
-            {request.units_needed > 1 ? "s" : ""} of{" "}
-            <strong>{request.blood_type}</strong> blood needed
-            {request.patient_name ? ` for ${request.patient_name}` : ""}.
+            {t("match.bloodNeededFor", {
+              units: request.units_needed,
+              bloodType: request.blood_type,
+              patient: patientSuffix,
+            })}
           </span>
         </div>
 
@@ -140,7 +147,7 @@ export const InviteSummary = ({
 
               <div className="min-w-0 flex-1">
                 <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
-                  Donation location
+                  {t("match.donationLocation")}
                 </p>
 
                 <h3 className="mt-1 break-words text-base font-black text-slate-950">
@@ -164,7 +171,7 @@ export const InviteSummary = ({
 
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
-                  Address
+                  {t("match.address")}
                 </p>
 
                 <p className="mt-1 break-words text-sm font-semibold leading-5 text-slate-700">
@@ -174,7 +181,7 @@ export const InviteSummary = ({
                 {distanceKm != null && (
                   <p className="mt-1 flex items-center gap-1.5 text-xs font-bold text-red-600">
                     <Navigation className="h-3.5 w-3.5 shrink-0" />
-                    Approximately {distanceKm} km from you
+                    {t("match.approxDistance", { distance: distanceKm })}
                   </p>
                 )}
               </div>
@@ -194,7 +201,7 @@ export const InviteSummary = ({
                 </span>
 
                 <span className="shrink-0 text-xs font-black uppercase tracking-[0.1em]">
-                  Call
+                  {t("match.call")}
                 </span>
               </a>
             )}

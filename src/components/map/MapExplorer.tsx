@@ -10,6 +10,7 @@ import {
   Radio,
 } from "lucide-react";
 
+import { useT } from "@/i18n";
 import { createClient } from "@/lib/supabase/client";
 import { HospitalMap } from "./HospitalMap";
 import type { BloodRequest, Hospital } from "@/lib/types";
@@ -20,6 +21,7 @@ export type MapRequest = Pick<
 >;
 
 export const MapExplorer = () => {
+  const { t } = useT();
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [requests, setRequests] = useState<MapRequest[]>([]);
   const [selected, setSelected] = useState<Hospital | null>(null);
@@ -90,7 +92,7 @@ export const MapExplorer = () => {
             </span>
 
             <span className="text-[10px] font-black uppercase tracking-[0.14em] text-red-700">
-              Live network
+              {t("map.liveNetwork")}
             </span>
           </div>
 
@@ -99,20 +101,20 @@ export const MapExplorer = () => {
           <MapStat
             icon={<Building2 className="h-3.5 w-3.5" />}
             value={hospitals.length}
-            label="Hospitals"
+            label={t("map.hospitals")}
           />
 
           <MapStat
             icon={<Droplets className="h-3.5 w-3.5" />}
             value={requests.length}
-            label="Requests"
+            label={t("map.requests")}
           />
 
           {criticalRequestCount > 0 && (
             <MapStat
               icon={<Activity className="h-3.5 w-3.5" />}
               value={criticalRequestCount}
-              label="Critical"
+              label={t("map.critical")}
               critical
             />
           )}
@@ -126,10 +128,10 @@ export const MapExplorer = () => {
 
             <div>
               <p className="text-sm font-black text-slate-950">
-                Loading blood network
+                {t("map.loadingBloodNetwork")}
               </p>
               <p className="mt-0.5 text-xs text-slate-500">
-                Finding hospitals and active requests
+                {t("map.loadingDesc")}
               </p>
             </div>
           </div>
@@ -146,7 +148,7 @@ export const MapExplorer = () => {
               </span>
 
               <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-700 sm:text-xs">
-                Needs blood now
+                {t("map.needsBloodNow")}
               </p>
 
               <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[10px] font-black text-white">
@@ -156,7 +158,7 @@ export const MapExplorer = () => {
 
             <div className="hidden items-center gap-1.5 rounded-full border border-white/80 bg-white/90 px-3 py-2 text-[10px] font-bold text-slate-500 shadow-sm backdrop-blur-xl sm:flex">
               <Radio className="h-3.5 w-3.5 text-red-500" />
-              Select a hospital
+              {t("map.selectHospital")}
             </div>
           </div>
 
@@ -207,7 +209,7 @@ export const MapExplorer = () => {
 
                       <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-2 py-1 text-[9px] font-black uppercase tracking-[0.1em] text-red-700">
                         <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
-                        Live
+                        {t("map.live")}
                       </span>
                     </div>
 
@@ -234,14 +236,16 @@ export const MapExplorer = () => {
 
                     <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
                       <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">
-                        {hospitalRequests.length} active request
-                        {hospitalRequests.length > 1 ? "s" : ""}
+                        {hospitalRequests.length}{" "}
+                        {hospitalRequests.length > 1
+                          ? t("map.activeRequestsPlural")
+                          : t("map.activeRequests")}
                       </p>
 
                       {criticalCount > 0 && (
                         <span className="inline-flex items-center gap-1 text-[10px] font-black text-red-600">
                           <Activity className="h-3.5 w-3.5" />
-                          {criticalCount} critical
+                          {criticalCount} {t("map.criticalLabel")}
                         </span>
                       )}
                     </div>

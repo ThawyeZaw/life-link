@@ -20,6 +20,7 @@ export interface Profile {
   lng: number | null;
   is_available: boolean;
   last_donation_date: string | null;
+  telegram_chat_id: number | null;
 }
 
 export interface Hospital {
