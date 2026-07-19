@@ -58,12 +58,20 @@ export const POST = async (req: Request) => {
   }
 
   // Fetch tokens + donor contact info for the invited set
-  const { data: matches } = await admin
+  const { data: matches, error: selectError } = await admin
     .from("matches")
     .select("donor_id, token, status, profiles:donor_id(full_name, email, telegram_chat_id)")
     .eq("request_id", requestId)
     .in("donor_id", donorIds)
     .eq("status", "INVITED");
+
+  if (selectError) {
+    console.error("[invite] failed to fetch matches:", selectError.message);
+    return NextResponse.json(
+      { error: "Failed to fetch match data — did you apply the telegram_chat_id migration?", detail: selectError.message },
+      { status: 500 }
+    );
+  }
 
   const hospital = request.hospitals;
 
