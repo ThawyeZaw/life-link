@@ -14,8 +14,14 @@ interface DonorInviteParams {
   token: string;
 }
 
-const siteUrl = () =>
-  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const siteUrl = () => {
+  // Vercel auto-provides this (e.g. "lifelink-henna.vercel.app")
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  // Custom domain set explicitly
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
+  // Local dev fallback
+  return "http://localhost:3000";
+};
 
 export const sendDonorInviteEmail = async (p: DonorInviteParams) => {
   const user = process.env.GMAIL_USER;

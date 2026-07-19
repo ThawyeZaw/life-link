@@ -16,8 +16,14 @@ export interface DonorInviteParams {
 const BOT_TOKEN = () =>
   process.env.TELEGRAM_BOT_TOKEN ?? process.env.TELEGRAM_BOT_TOKEN_DEV ?? "";
 
-const SITE_URL = () =>
-  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = () => {
+  // Vercel auto-provides this (e.g. "lifelink-henna.vercel.app")
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  // Custom domain set explicitly
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
+  // Local dev fallback
+  return "http://localhost:3000";
+};
 
 /** Simple HTML escaping for Telegram parse_mode HTML. */
 const h = (s: string): string =>
