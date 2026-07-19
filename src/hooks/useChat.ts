@@ -12,12 +12,14 @@ export interface ChatMessageData {
 const WELCOME: ChatMessageData = {
   role: "assistant",
   content:
-    "Hi! I'm the LifeLink Assistant. Ask me anything about blood donation, first aid, or how to use LifeLink. 🩸",
+    "Hi! I'm the LifeLink Assistant — your guide to blood donation, first aid, and health info for Myanmar. 🩸\n\n" +
+    "Try tapping a quick question below, or just ask me anything!",
 };
 
 export const useChat = () => {
   const [messages, setMessages] = useState<ChatMessageData[]>([WELCOME]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasUserSent, setHasUserSent] = useState(false);
 
   const sendMessage = async (content: string) => {
     const trimmed = content.trim();
@@ -28,6 +30,7 @@ export const useChat = () => {
       { role: "user", content: trimmed },
     ];
     setMessages(next);
+    setHasUserSent(true);
     setIsLoading(true);
 
     try {
@@ -55,5 +58,5 @@ export const useChat = () => {
     }
   };
 
-  return { messages, isLoading, sendMessage };
+  return { messages, isLoading, sendMessage, hasUserSent };
 };

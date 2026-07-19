@@ -103,6 +103,18 @@ export const sendTelegramInvite = async (
  * Process an incoming Telegram message (text only).
  * Returns the reply text to send back to the user via sendMessage.
  */
+/** Blood type compatibility lookup table. */
+const COMPATIBILITY: Record<string, { canGiveTo: string; canReceiveFrom: string }> = {
+  "O-":  { canGiveTo: "All types (universal donor)", canReceiveFrom: "O-" },
+  "O+":  { canGiveTo: "O+, A+, B+, AB+",            canReceiveFrom: "O+, O-" },
+  "A-":  { canGiveTo: "A-, A+, AB-, AB+",            canReceiveFrom: "A-, O-" },
+  "A+":  { canGiveTo: "A+, AB+",                     canReceiveFrom: "A+, A-, O+, O-" },
+  "B-":  { canGiveTo: "B-, B+, AB-, AB+",            canReceiveFrom: "B-, O-" },
+  "B+":  { canGiveTo: "B+, AB+",                     canReceiveFrom: "B+, B-, O+, O-" },
+  "AB-": { canGiveTo: "AB-, AB+",                    canReceiveFrom: "All Rh-negative types" },
+  "AB+": { canGiveTo: "AB+",                         canReceiveFrom: "All types (universal recipient)" },
+};
+
 export const handleMessage = async (
   msg: {
     chat: { id: number };
@@ -114,7 +126,7 @@ export const handleMessage = async (
   const chatId = msg.chat.id;
   const firstName = msg.from?.first_name ?? "there";
 
-  // /start — give the user their chat ID
+  // /start — give user their chat ID + overview
   if (text === "/start") {
     return (
       `👋 Hi <b>${h(firstName)}</b>! Welcome to the <b>LifeLink</b> blood donation network.\n\n` +
@@ -123,10 +135,144 @@ export const handleMessage = async (
       `1. Log in to LifeLink\n` +
       `2. Find <b>Telegram alerts</b> on your dashboard\n` +
       `3. Enter your chat ID <code>${chatId}</code> and tap <b>Connect</b>\n\n` +
-      `Once connected, you'll receive urgent alerts here whenever your blood type is needed.`
+      `─ ♦ ─\n\n` +
+      `<b>Available commands:</b>\n` +
+      `/help — See all commands\n` +
+      `/donate — Blood donation eligibility & tips\n` +
+      `/compatible <type> — Check blood type compatibility\n` +
+      `/dengue — Dengue warning signs\n` +
+      `/anemia — Anemia information & iron-rich foods\n` +
+      `/faq — Common blood donation myths & facts\n\n` +
+      `Once connected, you'll receive urgent alerts here whenever your blood type is needed. 🩸`
     );
   }
 
-  // Any other text — just remind them to use /start
-  return "Send /start to get your Telegram chat ID and setup instructions for LifeLink.";
+  // /help — list commands
+  if (text === "/help") {
+    return (
+      `<b>🤖 LifeLink Bot Commands</b>\n\n` +
+      `/start — Get your chat ID & setup instructions\n` +
+      `/donate — Who can donate? Requirements & preparation\n` +
+      `/compatible O+ (or any type) — Blood compatibility check\n` +
+      `/dengue — Dengue fever warning signs & prevention\n` +
+      `/anemia — Understanding anemia & Myanmar iron-rich foods\n` +
+      `/faq — Common myths about blood donation\n\n` +
+      `🌐 Visit LifeLink: lifelink-henna.vercel.app`
+    );
+  }
+
+  // /donate — blood donation FAQ
+  if (text === "/donate") {
+    return (
+      `<b>🩸 Blood Donation — Quick Guide</b>\n\n` +
+      `<b>Eligibility (Myanmar standards):</b>\n` +
+      `• Age: 18–60 years\n` +
+      `• Weight: ≥ 45 kg (ideally 50 kg)\n` +
+      `• Good general health — no fever, cold, or infection\n` +
+      `• Hemoglobin ≥ 12.5 g/dL (women) / 13.0 g/dL (men)\n\n` +
+      `<b>Before donating:</b>\n` +
+      `• Eat a light meal (avoid oily food)\n` +
+      `• Drink plenty of water\n` +
+      `• Sleep well (7–8 hours)\n` +
+      `• Avoid alcohol for 24 hours\n\n` +
+      `<b>After donating:</b>\n` +
+      `• Rest 10–15 min at the donation site\n` +
+      `• Drink extra fluids\n` +
+      `• Avoid heavy lifting/exercise for the day\n` +
+      `• Eat iron-rich foods (lahpet, liver, dark greens, eggs)\n\n` +
+      `⏱ Whole blood: donate every 3–4 months\n` +
+      `❌ Common myth: Donation does NOT weaken you long-term!`
+    );
+  }
+
+  // /compatible <bloodtype> — compatibility lookup
+  const compatMatch = text.match(/^\/compatible\s+(A|B|AB|O)[+-]$/i);
+  if (compatMatch) {
+    const bloodType = compatMatch[0].replace("/compatible ", "").toUpperCase();
+    const info = COMPATIBILITY[bloodType];
+    if (info) {
+      return (
+        `<b>🩸 Blood Type ${bloodType} Compatibility</b>\n\n` +
+        `<b>Can donate to:</b>\n${info.canGiveTo}\n\n` +
+        `<b>Can receive from:</b>\n${info.canReceiveFrom}\n\n` +
+        `💡 O- is the universal donor. AB+ is the universal recipient.`
+      );
+    }
+  }
+
+  // /compatible without args — show guide
+  if (text.startsWith("/compatible")) {
+    return (
+      `<b>🩸 Blood Type Compatibility</b>\n\n` +
+      `Type a blood type after the command, e.g.:\n` +
+      `<code>/compatible O+</code>\n\n` +
+      `Valid types: O-, O+, A-, A+, B-, B+, AB-, AB+\n\n` +
+      `💡 <b>Quick reference:</b>\n` +
+      `• O- → universal donor (can give to ALL types)\n` +
+      `• AB+ → universal recipient (can receive ALL types)`
+    );
+  }
+
+  // /dengue — dengue fever info
+  if (text === "/dengue") {
+    return (
+      `<b>🦟 Dengue Fever — Warning Signs</b>\n\n` +
+      `Dengue is common in Myanmar during monsoon season (June–October).\n\n` +
+      `<b>⚠️ Seek immediate hospital care if you see:</b>\n` +
+      `• Severe abdominal pain\n` +
+      `• Persistent vomiting\n` +
+      `• Bleeding gums or nose\n` +
+      `• Blood in vomit or stool\n` +
+      `• Extreme lethargy or restlessness\n` +
+      `• Cold, clammy skin\n\n` +
+      `<b>DO NOT</b> take ibuprofen or aspirin — they increase bleeding risk.\n` +
+      `Use paracetamol (acetaminophen) only for fever.\n\n` +
+      `<b>Prevention:</b>\n` +
+      `• Use mosquito repellent & nets\n` +
+      `• Eliminate standing water around your home\n` +
+      `• Seek medical care early if fever persists > 2 days\n\n` +
+      `🏥 Yangon General Hospital Emergency: 01-256112`
+    );
+  }
+
+  // /anemia — anemia info
+  if (text === "/anemia") {
+    return (
+      `<b>🩸 Anemia (သွေးအားနည်းရောဂါ)</b>\n\n` +
+      `Anemia is very common in Myanmar. Common causes: iron deficiency, thalassemia, poor diet, or hookworm.\n\n` +
+      `<b>Symptoms:</b> fatigue, pale palms, dizziness, shortness of breath, cold hands/feet.\n\n` +
+      `<b>🥘 Iron-rich Myanmar foods:</b>\n` +
+      `• Lahpet (လက်ဖက်) — fermented tea leaves\n` +
+      `• Liver — pork, beef, or chicken (အသည်း)\n` +
+      `• Dark leafy greens — ဟင်းနုနွယ်, မုန်ညင်းရွက်\n` +
+      `• Dried shrimp, eggs, black sesame (နှမ်းမည်း)\n` +
+      `• Beans & legumes (ပဲအမျိုးမျိုး)\n` +
+      `• Guava (ဂွေးသီး), jaggery (ထန်းလျက်)\n\n` +
+      `💡 Combine iron foods with Vitamin C (citrus, tomatoes, ဆီးဖြူသီး) for better absorption.\n\n` +
+      `👨‍⚕️ See a doctor for proper diagnosis and treatment.`
+    );
+  }
+
+  // /faq — common myths
+  if (text === "/faq") {
+    return (
+      `<b>✅ Blood Donation — Facts vs Myths</b>\n\n` +
+      `❌ "သွေးလှူရင် ကိုယ်တွင်းသွေးတွေ နည်းသွားတယ်"\n` +
+      `✅ Body replaces plasma in 24–48 hrs and red cells in 4–6 weeks.\n\n` +
+      `❌ "သွေးလှူရင် အားနည်းသွားတယ်" (Makes you permanently weak)\n` +
+      `✅ Temporary mild fatigue is normal; full recovery is quick with rest & nutrition.\n\n` +
+      `❌ "သွေးလှူရင် ရောဂါကူးစက်နိုင်တယ်"\n` +
+      `✅ Sterile, single-use equipment — zero risk of infection to the donor.\n\n` +
+      `❌ "သွေးအုပ်စုတူမှ သွေးလှူလို့ရတယ်"\n` +
+      `✅ Compatibility is broader than same-type-only. O- can donate to anyone!\n\n` +
+      `🩸 One donation can save up to 3 lives. Your body fully regenerates everything.`
+    );
+  }
+
+  // Any other text — friendly reminder with /help
+  return (
+    `👋 Send <b>/start</b> to get your Telegram chat ID.\n` +
+    `Send <b>/help</b> for all available commands.\n` +
+    `Or ask about blood donation with <b>/donate</b>, <b>/dengue</b>, or <b>/faq</b>.`
+  );
 };

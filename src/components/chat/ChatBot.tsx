@@ -7,12 +7,13 @@ import clsx from "clsx";
 import { useT } from "@/i18n";
 import { useChat } from "@/hooks/useChat";
 import { ChatMessage } from "@/components/chat/ChatMessage";
+import { FaqChips } from "@/components/chat/FaqChips";
 
 export const ChatBot = () => {
-  const { t } = useT();
+  const { t, locale } = useT();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
-  const { messages, isLoading, sendMessage } = useChat();
+  const { messages, isLoading, sendMessage, hasUserSent } = useChat();
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -23,6 +24,10 @@ export const ChatBot = () => {
     e.preventDefault();
     sendMessage(input);
     setInput("");
+  };
+
+  const handleFaqSelect = (query: string) => {
+    sendMessage(query);
   };
 
   return (
@@ -101,6 +106,13 @@ export const ChatBot = () => {
           )}
           <div ref={bottomRef} />
         </div>
+
+        {/* FAQ suggestion chips — visible only before any user message */}
+        <FaqChips
+          onSelect={handleFaqSelect}
+          visible={!hasUserSent}
+          lang={locale}
+        />
 
         {/* Input */}
         <form
